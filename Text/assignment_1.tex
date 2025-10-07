@@ -1,0 +1,203 @@
+\documentclass[12pt]{article}
+
+% ---------------- PACKAGES ----------------
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{csquotes}
+\usepackage{url}
+\usepackage{booktabs}
+
+% ---------------- SETTINGS ----------------
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm}
+\setstretch{1.2}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+}
+
+% ---------------- TITLE PAGE ----------------
+\title{\textbf{Empirical Asset Pricing -- Problem Set}\\[0.5em]
+\large Problem 5.2 and Problem 9.2}
+\author{Student: \textbf{Matheus Carrijo de Brito}}
+\date{Professor: \textbf{Fernando Chague} \\ 
+Teaching Assistant: \textbf{Bruno Giovannetti} \\[1em]
+São Paulo School of Economics -- FGV\\
+\today}
+
+% ---------------- DOCUMENT ----------------
+\begin{document}
+\maketitle
+
+% ============================================================
+% Problem 9.2
+% ============================================================
+
+\section*{Problem 9.2 -- GMM Analysis of the Two-Beta ICAPM}
+
+This problem asks you to use the GMM framework, presented in section 4.4, to analyze
+the two-beta asset pricing model of Campbell and Vuolteenaho (CV 2004). The data for
+this question can be found in an Excel spreadsheet on the textbook website, together
+with an accompanying explanatory document.13 The data include the excess return on
+the market together with the expected excess return and two components of the unexpected excess return, the news about cash flows NCF ,t and the news about discount rates
+–NDR,t. The news terms were estimated from a VAR as in CV. The data also include the
+riskless interest rate Rft and the returns Rit on a set of test assets, 9 of the 25 Fama-French
+portfolios sorted by size and book-to-market ratios.
+We suggest using MATLAB or similar software that allows you to write flexible code.
+For all parts, document in detail the results and formulas from section 4.4 that you use in
+each step.
+
+\begin{enumerate}
+   \item Estimate the parameters of the linear stochastic discount factor model
+Mt = a + b(–NDR,t) + cNCF ,t. (9.74)
+Use 10 moment conditions (one for the risk-free asset and nine for the stock portfolios) of the form 0 = E[Mt(1 + Rit) – 1] and the identity weighting matrix WT =
+I10.
+\item Estimate the long-run covariance matrix of the moments both under the null of
+the model that pricing errors are serially uncorrelated and by using the Newey-West
+HAC covariance matrix estimator. Estimate the covariance matrix of the parameter
+estimates under both estimates of the long-run covariance matrix. Do your results
+suggest pricing errors are serially correlated?
+For the remaining parts, use the Newey-West estimator.
+\item For each parameter, report the t-statistic and p-value for the hypothesis that the
+parameter is zero.
+\item Assume the following approximate and unconditional version of the first-order
+condition (9.40):
+E[Rit – Rft] = γ Cov((Rit – Rft), NCF ,t) + Cov((Rit – Rft), –NDR,t). (9.75)
+(i) What restriction does this condition impose on the parameters of SDF specification (9.74)?
+(ii) Test this restriction using a Wald test. Is it rejected?
+(iii) Provide an estimate of γ and the standard error of this estimate. Hint: Use the
+delta method.
+\item Return to the general model and compute the second-stage estimates of the
+parameters in (9.74). Repeat parts (c), (d)(ii), and (d)(iii) for the second-stage
+estimates. How do your answers differ?
+\item Finally, perform a χ 2-test of overidentifying restrictions using the second-stage
+estimates. What is the p-value of the test? Comment on the empirical success of
+the model.
+
+\end{enumerate}
+\vspace{1em}
+\noindent\textit{Source:} Based on \textcite{CampbellThompson2008}.  
+Data available at: \url{http://press.princeton.edu/titles/11177.html}.
+
+% ============================================================
+% Problem 5.2
+% ============================================================
+
+\newpage
+\section*{Problem 5.2 Predicting Stock Returns Out of Sample}
+
+
+In this exercise, we study empirically whether the out-of-sample stock market return predictability of well-known valuation ratios can be improved by imposing simple theoretical restrictions on the predictive regressions. The data for this question can be found in an Excel spreadsheet on the textbook website,\footnote{\url{http://press.princeton.edu/titles/11177.html}} together with an accompanying explanatory document offering more details on the suggested implementation of the predictive regressions.
+
+Consider the regression:
+\begin{equation}
+    R_{t+1} - R_{f,t+1} = \alpha + \beta x_t + u_{t+1},
+    \label{eq:5.94}
+\end{equation}
+where $R_{t+1}$ denotes the one-quarter-ahead return on the S\&P 500 index and $x_t$ is a predictor variable. 
+
+Motivated by the claim of \textcite{WelchGoyal2008} that the historical average excess stock return forecasts future excess stock returns out of sample better than regressions of excess returns on predictor variables, we evaluate the out-of-sample performance of forecasts based on predictor variable $x_t$ using the out-of-sample $R^2$ statistic computed as:
+\begin{equation}
+    R^2_{OS} = 1 - 
+    \frac{\sum_{t=0}^{T-1} (R_{t+1} - \hat{R}_{t+1})^2}
+         {\sum_{t=0}^{T-1} (R_{t+1} - \bar{R}_{t+1})^2},
+    \label{eq:5.95}
+\end{equation}
+where $\hat{R}_{t+1}$ is the fitted value from regression (\ref{eq:5.94}) estimated from the start date $-T_{IE}$ of the initial estimation sample through date $t$, and $\bar{R}_{t+1}$ is the historical arithmetic average return estimated from $-T_{IE}$ through $t$. 
+
+Here, $T_{IE}$ denotes the length of the initial estimation period, and $T$ the length of the out-of-sample forecast evaluation period. A positive value for $R^2_{OS}$ means that the predictive regression has a lower mean-squared prediction error than the historical average return.
+
+
+\begin{enumerate}[label=\textbf{(\alph*)}]
+
+    \item Calculate the in-sample $R^2$ statistics for the dividend yield, $x_t = D_t / P_t$, and the smoothed earnings yield, $x_t = X_t / P_t$, when regression (5.94) is estimated by standard ordinary least squares (OLS) over the full sample from 1872 to 2016.\footnote{\url{http://press.princeton.edu/titles/11177.html}}
+
+    \item Calculate the out-of-sample $R^2$ statistics for the two valuation ratios when regression (5.94) is estimated by standard OLS, with 1872–1926 as the initial estimation period and 1927–2016 as the out-of-sample forecast evaluation period. Compare the values you obtained for the in-sample and out-of-sample $R^2$ statistics. Are your results consistent with \textcite{WelchGoyal2008}?
+
+    \item Repeat the calculations of the previous part for the out-of-sample $R^2$ statistics, but now impose the (rather weak) theoretical restrictions that the slope $\beta$ in the predictive regression and the forecast for the excess return are both nonnegative. That is, calculate the return forecast as
+    \begin{equation}
+        \hat{R}_{t+1} = R_{f,t+1} + \max\{0,\, \hat{\alpha}_{t+1} + \max(0, \hat{\beta}_{t+1})x_{t+1}\},
+        \label{eq:5.96}
+    \end{equation}
+    where $\hat{\alpha}_{t+1}$ and $\hat{\beta}_{t+1}$ denote the intercept and slope estimates from the standard OLS regression, and $x_{t+1}$ is the historical arithmetic average value of $x$, all estimated through period $t$. 
+
+    Is there a significant improvement in the out-of-sample explanatory power of the two valuation ratios?
+
+    \item In the remaining parts of the exercise, we examine whether the forecasting performance of the dividend yield improves once we impose the theoretical restrictions of the drifting steady-state valuation model of Section~5.5.2. Following equation (5.87), we use a version of the dividend yield adjusted for dividend growth and the real rate as our predictor variable:
+    \begin{equation}
+        x_t = \frac{D_t}{P_t}(1 + G_t) + \exp(E_t[g_{t+1}]) + \frac{1}{2}Var_t(r_{t+1}),
+        \label{eq:5.97}
+    \end{equation}
+    where $E_t[g_{t+1}]$ and $Var_t(r_{t+1})$ denote market participants’ conditional expectation of future log dividend growth and the conditional variance of log returns.
+
+    \item Construct an estimate of equation~(\ref{eq:5.97}) using the historical sample mean of dividend growth and the historical sample variance of log stock returns up to date $t$. Even though the model assumes that market participants know the value of $D_{t+1}$ at date $t$, to avoid any look-ahead bias construct a real-time estimate of $x_t$ assuming that $D_{t+1}$ is not in the econometrician’s information set at date $t$.
+
+    Discuss alternative procedures that could be used to construct real-time estimates of $E_t[g_{t+1}]$ and $Var_t(r_{t+1})$.
+
+    \item Repeat the calculations of parts (b) and (c) for $x_t$ given by equation~(\ref{eq:5.97}). Compare the forecasting performance of this adjusted version of the dividend yield with that of the (unadjusted) dividend yield.
+
+    \item Finally, fully impose the theoretical restriction of equation~(\ref{eq:5.97}) by calculating the predicted return as:
+    \begin{equation}
+        \hat{R}_{t+1} = R_{f,t+1} + x_t,
+        \label{eq:5.98}
+    \end{equation}
+    where $x_t$ is given by equation~(\ref{eq:5.97}). What is the out-of-sample $R^2$ statistic now? Discuss your conclusions from this exercise.
+
+\end{enumerate}
+
+% ============================================================
+% Problem 3.5
+% ============================================================
+
+\section*{Problem 3.5 -- Fama-French Portfolios}
+
+In this exercise, you are asked to explore some classic issues from the empirical literature on stock market returns. The data for this question can be found in an Excel spreadsheet on the textbook website.\footnote{\url{http://press.princeton.edu/titles/11177.html}} To perform the analysis, we suggest using MATLAB or similar software that allows you to write flexible code.
+
+We consider six assets: four Fama-French portfolios (small-low, small-high, big-low, big-high), the market portfolio, and the 30-day Treasury bill. The four Fama-French portfolios are the corners of the $2 \times 3$ size/value portfolios found on Kenneth French’s website. The market portfolio is the value-weighted portfolio of stocks listed on the NYSE, AMEX, and NASDAQ. The data set runs from July 1926 to June 2016.
+
+\begin{enumerate}[label=\textbf{(\alph*)}]
+    \item Download the data from the textbook website. Do the exercises described in parts (i), (ii), and (iii) for the whole sample and also for two subsamples: July 1926–December 1963 and January 1964–June 2016.
+
+    \begin{enumerate}[label=\textbf{(\roman*)}]
+        \item Estimate the vector of sample mean excess returns and the covariance matrix of excess returns for each of the samples. 
+
+        \item Use these estimates to compute two ex-post mean–variance efficient sets: one for portfolios not including the riskless asset and one including the riskless asset. 
+
+        \item Plot the two sets on a graph with the standard deviation of excess returns on the horizontal axis and the mean excess return on the vertical axis, and indicate where each of the four Fama-French portfolios and the market portfolio lie. 
+
+        \item Calculate the Sharpe ratios of the tangency portfolio and the market portfolio.
+
+        \item[\textbf{(a)(iv)}] Plot expected return against $\beta$ for each of the portfolios. Calculate $\alpha$s and discuss your results.
+
+    \item[\textbf{(a)(v)}] Test the hypothesis that the market portfolio is mean–variance efficient by calculating a Gibbons–Ross–Shanken (GRS) test statistic. Interpret your results.
+
+    \item[\textbf{(b)}] In recent years there has been concern that the publicity given to value investing and the creation of quantitative investment strategies may alter the properties of value returns. One variant of this concern is that the excess return to value may disappear permanently as quantitative investors bid up the price of value stocks to efficient levels. Another variant is that the excess return to value may become less stable as capital flows in and out of value stocks in response to shifting sentiment of end investors about quantitative value strategies. Some have even argued that such shifting sentiment may cause the excess return to value to display a pattern of short-term positive autocorrelation (“style momentum”) and longer-term negative autocorrelation (“style reversal”).
+
+    \begin{enumerate}[label=\textbf{(\roman*)}]
+        \item Plot a one-year moving average of the excess return to small value stocks over small growth stocks (small-high minus small-low, or ``small HML'') over the period January 1964–June 2016. Compare the behavior of the plot in two subsamples: January 1964–December 1993 and January 1994–June 2016.
+
+        \item Calculate the mean, standard deviation, and Sharpe ratio of:
+        \begin{itemize}
+            \item The excess return on the market portfolio over the Treasury bill;
+            \item The return on small HML;
+        \end{itemize}
+        for each of the two subsamples.
+
+        \item Aggregate the small HML return to quarterly frequency and plot its autocorrelation function out to 12 quarters (3 years) in each of the two subsamples.
+
+        \item Discuss what your results suggest about the changing behavior of value returns in recent years. Do they support any of the concerns described above?
+    \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+
+\vspace{1em}
+
+\noindent\textit{Source:} Based on \textcite{CampbellVuolteenaho2004}.  
+Data available at: \url{http://press.princeton.edu/titles/11177.html}.
+
+\end{document}
