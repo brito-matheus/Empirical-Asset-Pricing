@@ -49,57 +49,361 @@ where $\hat{R}_{t+1}$ is the fitted value from regression (\ref{eq:5.94}) estima
 
 Here, $T_{IE}$ denotes the length of the initial estimation period, and $T$ the length of the out-of-sample forecast evaluation period. A positive value for $R^2_{OS}$ means that the predictive regression has a lower mean-squared prediction error than the historical average return.
 
-a) Calculate the in-sample $R^2$ statistics for the dividend yield, $x_t = D_t / P_t$, and the smoothed earnings yield, $x_t = X_t / P_t$, when regression (5.94) is estimated by standard ordinary least squares (OLS) over the full sample from 1872 to 2016 
-
-
-```{r}
-
-```
-
-b) Calculate the out-of-sample $R^2$ statistics for the two valuation ratios when regression (5.94) is estimated by standard OLS, with 1872–1926 as the initial estimation period and 1927–2016 as the out-of-sample forecast evaluation period. Compare the values you obtained for the in-sample and out-of-sample $R^2$ statistics. Are your results consistent with \textcite{welch_comprehensive_2008}?
-
+a)  Calculate the in-sample $R^2$ statistics for the dividend yield, $x_t = D_t / P_t$, and the smoothed earnings yield, $x_t = X_t / P_t$, when regression (5.94) is estimated by standard ordinary least squares (OLS) over the full sample from 1872 to 2016
 
 ```{r}
 
+rm(list = ls())
+library(data.table)
+library(tidyverse)
+library(kableExtra)
+library(gridExtra)
+library(fixest)
+
+
+dt <- readxl::read_excel("../Data/Problem5.2_data.xlsx") |> 
+    setDT()
+
+dt[, Date := as.Date(paste(Date, "01", sep = "-"), format = "%Y.%m-%d")]
+
+# Chceking the structure 
+str(dt)
+# Making the summary
+summary(dt)
+
+# making the excess return variable
+dt[, risk_premium_excess := Rm - Rf]
+dt[, risk_premium_excess_future := shift(risk_premium_excess, type = "lead")]
+
+# Calculating the in-sample R2 statistics for the dividend yield and the smoothed earnings yield
+
+ols_dividend <- feols(risk_premium_excess ~ dp, data = dt, cluster  = ~ Date, panel.id = ~ Date + Rm)
+ols_trailing_earnings <- feols(risk_premium_excess ~ xp, data = dt, cluster = ~ Date, panel.id = ~ Date + Rm)
+
+etable(ols_dividend, ols_trailing_earnings, digits = 4)
+
+
 ```
 
-c) Repeat the calculations of the previous part for the out-of-sample $R^2$ statistics, but now impose the (rather weak) theoretical restrictions that the slope $\beta$ in the predictive regression and the forecast for the excess return are both nonnegative. That is, calculate the return forecast as
-$$
+b)  Calculate the out-of-sample $R^2$ statistics for the two valuation ratios when regression (5.94) is estimated by standard OLS, with 1872–1926 as the initial estimation period and 1927–2016 as the out-of-sample forecast evaluation period. Compare the values you obtained for the in-sample and out-of-sample $R^2$ statistics. Are your results consistent with \textcite{welch_comprehensive_2008}?
+
+```{r}
+
+compute_os_r2 <- function(data, predictor, start_estimation, end_estimation, start_forecast, end_forecast) {
+    # Filter the data for the estimation period
+    estimation_data <- data[Date >= start_estimation & Date <= end_estimation]
+    
+    # Fit the OLS model
+    formula <- as.formula(paste("risk_premium_excess_future ~", predictor))
+    model <- feols(formula, data = estimation_data)
+    
+    # Prepare for out-of-sample forecasting
+    forecast_data <- data[Date > end_estimation & Date <= end_forecast]
+    forecast_data[, predicted := predict(model, newdata = forecast_data)]
+    
+    # Calculate the historical average return for the forecast period
+    historical_avg <- mean(estimation_data$risk_premium_excess)
+    
+    # Calculate the out-of-sample R^2
+    mse_model <- mean((forecast_data$risk_premium_excess_future - forecast_data$predicted)^2, na.rm = T)
+    mse_historical <- mean((forecast_data$risk_premium_excess_future - historical_avg)^2, na.rm = T)
+    
+    r2_os <- 1 - (mse_model / mse_historical)
+    
+    return(r2_os)
+}
+
+r_square_os_dp <-  compute_os_r2(data = dt, predictor = "dp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+r_square_os_xp <-  compute_os_r2(data = dt, predictor = "xp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+kbl(data.frame(
+    Predictor = c("Dividend Yield (dp)", "Smoothed Earnings Yield (xp)"),
+    Out_of_Sample_R2 = c(r_square_os_dp, r_square_os_xp)
+)) |> 
+    kable_styling(full_width = F)
+
+```
+
+c)  Repeat the calculations of the previous part for the out-of-sample $R^2$ statistics, but now impose the (rather weak) theoretical restrictions that the slope $\beta$ in the predictive regression and the forecast for the excess return are both nonnegative. That is, calculate the return forecast as \$\$
+
+$$    
 \begin{equation}
     \hat{R}_{t+1} = R_{f,t+1} + \max\{0,\, \hat{\alpha}_{t+1} + \max(0, \hat{\beta}_{t+1})x_{t+1}\},
     \label{eq:5.96}
 \end{equation}
 $$
 
-where $\hat{\alpha}_{t+1}$ and $\hat{\beta}_{t+1}$ denote the intercept and slope estimates from the standard OLS regression, and $x_{t+1}$ is the historical arithmetic average value of $x$, all estimated through period $t$. 
+where $\hat{\alpha}_{t+1}$ and $\hat{\beta}_{t+1}$ denote the intercept and slope estimates from the standard OLS regression, and $x_{t+1}$ is the historical arithmetic average value of $x$, all estimated through period $t$.
 
 Is there a significant improvement in the out-of-sample explanatory power of the two valuation ratios?
 
-
 ```{r}
+
+# Implementing the non-negativity constraints on beta and the return forecast
+
+compute_os_r2_theoretical <- function(data, predictor, start_estimation, end_estimation, start_forecast, end_forecast) {
+    estimation_data <- data[Date >= start_estimation & Date <= end_estimation]
+    
+    # Fit the OLS model
+    formula <- as.formula(paste("risk_premium_excess_future ~", predictor))
+    model <- feols(formula, data = estimation_data)
+
+    coef <-model %>% coeftable()
+    alpha_hat <- coef[1,1]
+    beta_hat <- coef[2,1]
+
+    forecast_data <- data[Date > end_estimation & Date <= end_forecast]
+    forecast_data[, predicted := pmax(0, alpha_hat + pmax(0, beta_hat) * get(predictor)) + Rf]
+
+    # Calculate the historical average return for the forecast period
+    historical_avg <- mean(estimation_data$risk_premium_excess)
+
+    # Calculate the out-of-sample R^2
+    mse_model <- mean((forecast_data$risk_premium_excess_future - forecast_data$predicted)^2, na.rm = T)
+    mse_historical <- mean((forecast_data$risk_premium_excess_future - historical_avg)^2, na.rm = T)
+
+    r2_os <- 1 - (mse_model / mse_historical)
+
+    return(r2_os)
+}
+
+r2_os_dp_theoretical <-  compute_os_r2_theoretical(data = dt, predictor = "dp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+r2_os_xp_theoretical <-  compute_os_r2_theoretical(data = dt, predictor = "xp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+kbl(data.frame(
+    Predictor = c("Dividend Yield (dp)", "Smoothed Earnings Yield (xp)"),
+    Out_of_Sample_R2_Theoretical = c(r2_os_dp_theoretical, r2_os_xp_theoretical))) |> 
+    kable_styling(full_width = F)
 
 ```
 
-d) In the remaining parts of the exercise, we examine whether the forecasting performance of the dividend yield improves once we impose the theoretical restrictions of the drifting steady-state valuation model of Section~5.5.2. Following equation (5.87), we use a version of the dividend yield adjusted for dividend growth and the real rate as our predictor variable:
-$$
-\begin{equation}
-    x_t = \frac{D_t}{P_t}(1 + G_t) + \exp(E_t[g_{t+1}]) + \frac{1}{2}Var_t(r_{t+1}),
-    \label{eq:5.97}
-\end{equation}
-$$
-where $E_t[g_{t+1}]$ and $Var_t(r_{t+1})$ denote market participants’ conditional expectation of future log dividend growth and the conditional variance of log returns.
+d)  In the remaining parts of the exercise, we examine whether the forecasting performance of the dividend yield improves once we impose the theoretical restrictions of the drifting steady-state valuation model of Section\~5.5.2. Following equation (5.87), we use a version of the dividend yield adjusted for dividend growth and the real rate as our predictor variable:
 
-e) Construct an estimate of equation~(\ref{eq:5.97}) using the historical sample mean of dividend growth and the historical sample variance of log stock returns up to date $t$. Even though the model assumes that market participants know the value of $D_{t+1}$ at date $t$, to avoid any look-ahead bias construct a real-time estimate of $x_t$ assuming that $D_{t+1}$ is not in the econometrician’s information set at date $t$.
+$$
+    \begin{equation}
+     x_t = \frac{D_t}{P_t}(1 + G_t) + \exp(E_t[g_{t+1}]) + \frac{1}{2}Var_t(r_{t+1}),
+     \label{eq:5.97}
+    \end{equation}
+    $$ where $E_t[g_{t+1}]$ and $Var_t(r_{t+1})$ denote market participants’ conditional expectation of future log dividend growth and the conditional variance of log returns.
+
+e)  Construct an estimate of equation\~(\ref{eq:5.97}) using the historical sample mean of dividend growth and the historical sample variance of log stock returns up to date $t$. Even though the model assumes that market participants know the value of $D_{t+1}$ at date $t$, to avoid any look-ahead bias construct a real-time estimate of $x_t$ assuming that $D_{t+1}$ is not in the econometrician’s information set at date $t$.
 
 Discuss alternative procedures that could be used to construct real-time estimates of $E_t[g_{t+1}]$ and $Var_t(r_{t+1})$.
 
-f) Repeat the calculations of parts (b) and (c) for $x_t$ given by equation~(\ref{eq:5.97}). Compare the forecasting performance of this adjusted version of the dividend yield with that of the (unadjusted) dividend yield.
+```{r}
+# Constructing the adjusted dividend yield x_t
 
-g) Finally, fully impose the theoretical restriction of equation~(\ref{eq:5.97}) by calculating the predicted return as:
+
+construct_adjusted_dividend_yield <- function(data) {
+  # First, create necessary variables
+  data[, `:=`(
+    # Log dividend growth (assuming we have dividend data)
+    log_div_growth = c(NA, diff(log(D))),
+    # Log stock returns 
+    log_return = log(1 + Rm)
+  )]
+  
+  # Initialize the adjusted dividend yield variable
+  data[, x_t := NA_real_]
+  
+  # Create real-time estimates without look-ahead bias
+  for (i in 21:nrow(data)) {  # Start from row 21 to have enough history
+    
+    # Historical data up to time t (no look-ahead)
+    hist_data <- data[1:(i-1)]  # Use data up to t-1 to avoid look-ahead
+    
+    # Real-time estimate of E_t[g_{t+1}] using historical mean
+    # Use expanding window or rolling window (here using expanding)
+    E_g_t1 <- mean(hist_data$log_div_growth, na.rm = TRUE)
+    
+    # Real-time estimate of Var_t(r_{t+1}) using historical variance
+    Var_r_t1 <- var(hist_data$log_return, na.rm = TRUE)
+    
+    # Current dividend yield and growth rate
+    current_dp <- data[i]$dp
+    # Approximate G_t as recent dividend growth (you might need to adjust this)
+    G_t <- ifelse(i > 1, data[i-1]$log_div_growth, 0)
+    G_t <- ifelse(is.na(G_t), 0, G_t)
+    
+    # Construct x_t according to equation (5.97)
+    data[i, x_t := current_dp * (1 + G_t) + exp(E_g_t1) + 0.5 * Var_r_t1]
+  }
+  
+  return(data)
+}
+
+# Alternative implementation with rolling windows
+construct_adjusted_dividend_yield_rolling <- function(data, window_length = 60) {
+  # Create necessary variables
+  data[, `:=`(
+    log_div_growth = c(NA, diff(log(D))),
+    log_return = log(1 + Rm)
+  )]
+  
+  data[, x_t := NA_real_]
+  
+  for (i in (window_length + 1):nrow(data)) {
+    # Use rolling window instead of expanding window
+    start_idx <- max(1, i - window_length)
+    hist_data <- data[start_idx:(i-1)]
+    
+    # Rolling estimates
+    E_g_t1 <- mean(hist_data$log_div_growth, na.rm = TRUE)
+    Var_r_t1 <- var(hist_data$log_return, na.rm = TRUE)
+    
+    current_dp <- data[i]$dp
+    G_t <- ifelse(i > 1, data[i-1]$log_div_growth, 0)
+    G_t <- ifelse(is.na(G_t), 0, G_t)
+    
+    data[i, x_t := current_dp * (1 + G_t) + exp(E_g_t1) + 0.5 * Var_r_t1]
+  }
+  
+  return(data)
+}
+
+# Apply the transformation to your data
+dt_adjusted <- construct_adjusted_dividend_yield(dt)
+
+```
+
+f)  Repeat the calculations of parts (b) and (c) for $x_t$ given by equation\~(\ref{eq:5.97}). Compare the forecasting performance of this adjusted version of the dividend yield with that of the (unadjusted) dividend yield.
+
+```{r}
+
+# Computing the out-of-sample R2 statistics with the adjusted dividend yield without theoretical restrictions
+r2_os_dp_theoretical_adj <-  compute_os_r2_theoretical(data = dt_adjusted[!is.na(x_t),], predictor = "dp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+r2_os_xp_theoretical_adj <-  compute_os_r2_theoretical(data = dt_adjusted[!is.na(x_t),], predictor = "xp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+r2_os_xt_theoretical_adj <-  compute_os_r2_theoretical(data = dt_adjusted[!is.na(x_t),], predictor = "x_t", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+# Computing the out-of-sample R2 statistics with the adjusted dividend yield without theoretical restrictions
+kbl(data.frame(
+    Predictor = c("Dividend Yield (dp)", "Smoothed Earnings Yield (xp)", "Adjusted Dividend Yield (x_t)"),
+    Out_of_Sample_R2_Theoretical_Adj = c(r2_os_dp_theoretical_adj, r2_os_xp_theoretical_adj, r2_os_xt_theoretical_adj))) |> 
+    kable_styling(full_width = F)
+
+# Computing the out-of-sample R2 statistics with the adjusted dividend yield with theoretical restrictions
+r2_os_dp_theoretical_adj_restr <-  compute_os_r2_theoretical(data = dt_adjusted[!is.na(x_t),], predictor = "dp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+r2_os_xp_theoretical_adj_restr <-  compute_os_r2_theoretical(data = dt_adjusted[!is.na(x_t),], predictor = "xp", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+r2_os_xt_theoretical_adj_restr <-  compute_os_r2_theoretical(data = dt_adjusted[!is.na(x_t),], predictor = "x_t", start_estimation = as.Date("1872-01-01"),
+     end_estimation = as.Date("1926-12-31"),  end_forecast = as.Date("2016-12-31"))
+
+# Computing the out-of-sample R2 statistics with the adjusted dividend yield without theoretical restrictions
+kbl(data.frame(
+    Predictor = c("Dividend Yield (dp)", "Smoothed Earnings Yield (xp)", "Adjusted Dividend Yield (x_t)"),
+    Out_of_Sample_R2_Theoretical_Adj_Restr = c(r2_os_dp_theoretical_adj_restr, r2_os_xp_theoretical_adj_restr, r2_os_xt_theoretical_adj_restr))) |> 
+    kable_styling(full_width = F)
+
+```
+
+f)  Finally, fully impose the theoretical restriction of equation\~(\ref{eq:5.97}) by calculating the predicted return as:
+
 $$
-\begin{equation}
-    \hat{R}_{t+1} = R_{f,t+1} + x_t,
-    \label{eq:5.98}
-\end{equation}
-$$
-where $x_t$ is given by equation~(\ref{eq:5.98}). What is the out-of-sample $R^2$ statistic now? Discuss your conclusions from this exercise.
+    \begin{equation}
+     \hat{R}_{t+1} = R_{f,t+1} + x_t,
+     \label{eq:5.98}
+    \end{equation}
+$$ where $x_t$ is given by equation\~(\ref{eq:5.98}). What is the out-of-sample $R^2$ statistic now? Discuss your conclusions from this exercise.
+
+```{r}
+
+# Function to compute out-of-sample R² with theoretical restriction R̂_{t+1} = R_{f,t+1} + x_t
+compute_os_r2_theoretical_restriction <- function(data, predictor_var, 
+                                                 start_estimation, end_estimation, 
+                                                 start_forecast, end_forecast) {
+  
+  # Filter data for different periods
+  estimation_data <- data[Date >= start_estimation & Date <= end_estimation]
+  forecast_data <- data[Date > end_estimation & Date <= end_forecast]
+  
+  # Remove observations with missing values in the predictor
+  forecast_data <- forecast_data[!is.na(get(predictor_var))]
+  
+  # Calculate predicted returns using theoretical restriction: R̂_{t+1} = R_{f,t+1} + x_t
+  forecast_data[, predicted_return := Rf + get(predictor_var)]
+  
+  # Calculate historical average return from estimation period (benchmark)
+  historical_avg <- mean(estimation_data$risk_premium_excess, na.rm = TRUE)
+  benchmark_return <- historical_avg + mean(forecast_data$Rf, na.rm = TRUE)
+  
+  # Calculate actual returns for comparison
+  forecast_data[, actual_return := Rm]  # or however your actual returns are defined
+  
+  # Compute out-of-sample R²
+  # R²_OS = 1 - MSE_model / MSE_benchmark
+  
+  mse_model <- mean((forecast_data$actual_return - forecast_data$predicted_return)^2, na.rm = TRUE)
+  mse_benchmark <- mean((forecast_data$actual_return - benchmark_return)^2, na.rm = TRUE)
+  
+  r2_os <- 1 - (mse_model / mse_benchmark)
+  
+  # Additional diagnostics
+  n_obs <- nrow(forecast_data)
+  mean_actual <- mean(forecast_data$actual_return, na.rm = TRUE)
+  mean_predicted <- mean(forecast_data$predicted_return, na.rm = TRUE)
+  
+  return(list(
+    r2_os = r2_os,
+    mse_model = mse_model,
+    mse_benchmark = mse_benchmark,
+    n_observations = n_obs,
+    mean_actual = mean_actual,
+    mean_predicted = mean_predicted,
+    mean_predictor = mean(forecast_data[[predictor_var]], na.rm = TRUE)
+  ))
+}
+
+# Apply to your adjusted dividend yield x_t
+result_x_t <- compute_os_r2_theoretical_restriction(
+  data = dt_adjusted[!is.na(x_t)], 
+  predictor_var = "x_t",
+  start_estimation = as.Date("1872-01-01"),
+  end_estimation = as.Date("1926-12-31"),
+  start_forecast = as.Date("1927-01-01"),
+  end_forecast = as.Date("2016-12-31")
+)
+
+# Display results
+cat("Out-of-sample R² with theoretical restriction (R̂_{t+1} = R_{f,t+1} + x_t):\n")
+cat("R²_OS:", round(result_x_t$r2_os, 6), "\n")
+cat("MSE Model:", round(result_x_t$mse_model, 6), "\n")
+cat("MSE Benchmark:", round(result_x_t$mse_benchmark, 6), "\n")
+cat("Number of observations:", result_x_t$n_observations, "\n")
+
+# Compare with other predictors for completeness
+result_dp <- compute_os_r2_theoretical_restriction(
+  data = dt_adjusted[!is.na(x_t)], 
+  predictor_var = "dp",
+  start_estimation = as.Date("1872-01-01"),
+  end_estimation = as.Date("1926-12-31"),
+  start_forecast = as.Date("1927-01-01"),
+  end_forecast = as.Date("2016-12-31")
+)
+
+# Summary table
+results_summary <- data.frame(
+  Predictor = c("Adjusted Dividend Yield (x_t)", "Dividend Yield (dp)"),
+  R2_OS_Theoretical_Restriction = c(result_x_t$r2_os, result_dp$r2_os),
+  MSE_Model = c(result_x_t$mse_model, result_dp$mse_model),
+  N_Obs = c(result_x_t$n_observations, result_dp$n_observations)
+)
+
+kbl(results_summary) |> 
+  kable_styling(full_width = FALSE)
+
+
+```
