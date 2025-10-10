@@ -1,6 +1,34 @@
 ---
-title: "Untitled"
+title: "Pset 3 - Problem 3.5 Fama French Portfolios"
+author: "Matheus Carrijo de Brito"
+date: "`r Sys.Date()`"
 format: html
+editor: visual
+execute:
+  echo: true
+  code_fold: true
+  warning: false
+  error: false
+  message: false
+  cache: false
+  cache-depth: 0
+  cache-path: ../cache/
+  fig-width: 7
+  fig-height: 5
+  fig-align: center
+  out.width: "80%"
+  out.height: auto
+  dpi: 96
+  dev: "png"
+  dev.args:
+    type: "cairo"
+    antialias: "subpixel"
+    res: 96
+    units: "in"
+    pointsize: 12
+    bg: "white"
+    width: NULL
+    height: NULL
 ---
 
 ## Problem 3.5 Fama French Portfolios
@@ -30,6 +58,11 @@ library(quantmod)
 library(quantreg)
 library(gridExtra)
 library(fixest)
+
+library(data.table)
+library(fixest)
+library(ggplot2)
+library(scales)
 
 
 # =========================================================
@@ -240,11 +273,6 @@ b.  Plot expected return against $\beta$ for each of the portfolios. Calculate $
     # CAPM with fixest + data.table, SML plot, alphas/betas
     # (assumes df already in memory with excess returns)
     # =========================================================
-
-    library(data.table)
-    library(fixest)
-    library(ggplot2)
-    library(scales)
 
     # Convert to data.table
     DT <- as.data.table(df)
@@ -462,10 +490,35 @@ e.
 
 <!-- -->
 
-2.  In recent years there has been concern that the publicity given to value investing and the creation of quantitative investment strategies may alter the properties of value returns. One variant of this concern is that the ex- cess return to value may disappear permanently as quantitative investors bid up the price of value stocks to efficient levels. Another variant is that the excess return to value may become less stable as capital flows in and out of value stocks in response to shifting sentiment of end in- vestors about quantitative value strategies. Some have even argued that such shifting sentiment may cause the excess return to value to display a pattern of short-term positive autocorrelation (“style momentum”) and longer-term negative autocorrelation (“style reversal”).
-    i.  Plot a one-year moving average of the excess return to small value stocks over small growth stocks (small-high minus small-low, or “small HML”) over the period January 1964–June 2016. Compare the be- havior of the plot in two subsamples: January 1964–December 1993 and January 1994–June 2016.
+2.  In recent years there has been concern that the publicity given to value investing and the creation of quantitative investment strategies may alter the properties of value returns. One variant of this concern is that the excess return to value may disappear permanently as quantitative investors bid up the price of value stocks to efficient levels. Another variant is that the excess return to value may become less stable as capital flows in and out of value stocks in response to shifting sentiment of end in- vestors about quantitative value strategies. Some have even argued that such shifting sentiment may cause the excess return to value to display a pattern of short-term positive autocorrelation (“style momentum”) and longer-term negative autocorrelation (“style reversal”).
+    i.  Plot a one-year moving average of the excess return to small value stocks over small growth stocks (small-high minus small-low, or “small HML”) over the period January 1964–June 2016. Compare the behavior of the plot in two subsamples: January 1964–December 1993 and January 1994–June 2016.
 
         ```{r}
+
+        df <- data.table(df)
+
+        dt_plot <- df[between(Date, as.Date("1964-01-01"), as.Date("2016-06-30")), .(Date, SL, SH, RF)] %>%
+          .[, ret_small_hml := (SH - SL) ] %>%
+          .[, mean_ex_ret := frollmean(ret_small_hml, n = 4, align = "right", na.rm = TRUE) * 4] %>%
+          .[, period := fcase(between(Date, as.Date("1964-01-01"), as.Date("1993-12-31")), 'period_1', 
+                              between(Date, as.Date("1994-01-01"), as.Date("2016-06-30")), 'period_2', 
+                              default = 'other')] %>%
+          .[period != 'other']
+
+        dt_plot[, average := mean(mean_ex_ret, na.rm = TRUE), by = period]
+
+        dt_plot %>%
+            ggplot(aes(x = Date, y = mean_ex_ret, color = period)) +
+            geom_line() +
+            geom_hline(aes(yintercept = average, color = period), linetype = "dashed") +
+            labs(title = "One-Year Moving Average of Excess Return to Small Value Stocks over Small Growth Stocks",
+                 x = "Date",
+                 y = "One-Year Moving Average of Excess Return (%)",
+                 color = "Period") +
+            scale_color_manual(values = c("period_1" = "blue", "period_2" = "red"),
+                               labels = c("1964-1993", "1994-2016")) +
+            theme_minimal() +
+            theme(legend.position = "top")
 
         ```
 
@@ -473,16 +526,31 @@ e.
 
         ```{r}
 
+              dt_plot %>%
+          .[, .(mean_ex_ret = mean(ret_small_hml, na.rm = TRUE),
+                sd_ex_ret = sd(ret_small_hml, na.rm = TRUE),
+                sharpe_ratio = mean(ret_small_hml, na.rm = TRUE) / sd(ret_small_hml, na.rm = TRUE)), by = period] %>%
+          kable(caption = "Small HML Return Statistics by Period") %>%
+          kable_styling(full_width = FALSE)
+
         ```
 
     iii. Aggregate the small HML return to quarterly frequency and plot its autocorrelation function out to 12 quarters (3 years) in each of the two subsamples.
 
          ```{r}
 
+                 df %>%
+          .[, ret_small_hml := (SH - SL) ] %>%
+          .[, quarter := as.yearqtr(Date)] %>%
+          .[, period := fcase(between(quarter, as.yearqtr("1964 Q1"), as.yearqtr("1993 Q4")), 'period_1', 
+                              between(quarter, as.yearqtr("1994 Q1"), as.yearqtr("2016 Q2")), 'period_2', 
+                              default = 'other')] 
+
+           
+         stats::acf(df[period == 'period_1', .(ret_small_hml)], lag.max = 12, main = "ACF of Small HML (1964-1993)")
+
+         stats::acf(df[period == 'period_2', .(ret_small_hml)], lag.max = 12, main = "ACF of Small HML (1994-2016)")
+
          ```
 
     iv. Discuss what your results suggest about the changing behavior of value returns in recent years. Do they support any of the concerns described above?
-
-        ```{r}
-
-        ```

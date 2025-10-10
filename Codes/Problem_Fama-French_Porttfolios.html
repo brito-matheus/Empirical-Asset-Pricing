@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Matheus Carrijo de Brito">
+<meta name="dcterms.date" content="2025-10-10">
 
-<title>Untitled</title>
+<title>Pset 3 - Problem 3.5 Fama French Portfolios</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -67,6 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="Problem_Fama-French_Porttfolios_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="Problem_Fama-French_Porttfolios_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="Problem_Fama-French_Porttfolios_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="Problem_Fama-French_Porttfolios_files/libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="Problem_Fama-French_Porttfolios_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -108,14 +114,26 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Untitled</h1>
+<h1 class="title">Pset 3 - Problem 3.5 Fama French Portfolios</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Matheus Carrijo de Brito </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 10, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -137,344 +155,213 @@ window.Quarto = {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- packages ----</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'lubridate'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    date, intersect, setdiff, union</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'data.table'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:lubridate':
-
-    hour, isoweek, mday, minute, month, quarter, second, wday, week,
-    yday, year</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:dplyr':
-
-    between, first, last</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ forcats 1.0.0     ✔ readr   2.1.5
-✔ purrr   1.0.2     ✔ tibble  3.2.1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ data.table::between() masks dplyr::between()
-✖ readr::col_factor()   masks scales::col_factor()
-✖ purrr::discard()      masks scales::discard()
-✖ dplyr::filter()       masks stats::filter()
-✖ data.table::first()   masks dplyr::first()
-✖ data.table::hour()    masks lubridate::hour()
-✖ data.table::isoweek() masks lubridate::isoweek()
-✖ dplyr::lag()          masks stats::lag()
-✖ data.table::last()    masks dplyr::last()
-✖ data.table::mday()    masks lubridate::mday()
-✖ data.table::minute()  masks lubridate::minute()
-✖ data.table::month()   masks lubridate::month()
-✖ data.table::quarter() masks lubridate::quarter()
-✖ data.table::second()  masks lubridate::second()
-✖ purrr::transpose()    masks data.table::transpose()
-✖ data.table::wday()    masks lubridate::wday()
-✖ data.table::week()    masks lubridate::week()
-✖ data.table::yday()    masks lubridate::yday()
-✖ data.table::year()    masks lubridate::year()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'kableExtra'
-
-The following object is masked from 'package:dplyr':
-
-    group_rows</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quantmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: xts
-Loading required package: zoo
-
-Attaching package: 'zoo'
-
-The following objects are masked from 'package:data.table':
-
-    yearmon, yearqtr
-
-The following objects are masked from 'package:base':
-
-    as.Date, as.Date.numeric
-
-
-######################### Warning from 'xts' package ##########################
-#                                                                             #
-# The dplyr lag() function breaks how base R's lag() function is supposed to  #
-# work, which breaks lag(my_xts). Calls to lag(my_xts) that you type or       #
-# source() into this session won't work correctly.                            #
-#                                                                             #
-# Use stats::lag() to make sure you're not using dplyr::lag(), or you can add #
-# conflictRules('dplyr', exclude = 'lag') to your .Rprofile to stop           #
-# dplyr from breaking base R's lag() function.                                #
-#                                                                             #
-# Code in packages is not affected. It's protected by R's namespace mechanism #
-# Set `options(xts.warn_dplyr_breaks_lag = FALSE)` to suppress this warning.  #
-#                                                                             #
-###############################################################################
-
-Attaching package: 'xts'
-
-The following objects are masked from 'package:data.table':
-
-    first, last
-
-The following objects are masked from 'package:dplyr':
-
-    first, last
-
-Loading required package: TTR
-Registered S3 method overwritten by 'quantmod':
-  method            from
-  as.zoo.data.frame zoo </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quantreg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: SparseM</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'gridExtra'
-
-The following object is masked from 'package:dplyr':
-
-    combine</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'fixest'
-
-The following object is masked from 'package:scales':
-
-    pvalue</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Empirical Frontier (R): Full sample + two subsamples</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1) Load data ----</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Change the file/sheet names below to match your spreadsheet</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>path_xlsx <span class="ot">&lt;-</span> <span class="st">"../Data/Problem3.5_data.xlsx"</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>sheet_nm  <span class="ot">&lt;-</span> <span class="st">"Sheet1"</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(path_xlsx, <span class="at">sheet =</span> sheet_nm, </span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">'Date'</span>,<span class="st">"SL"</span>,<span class="st">"SH"</span>,<span class="st">"BL"</span>,<span class="st">"BH"</span>,<span class="st">"MKT"</span>, <span class="st">"RF"</span>), <span class="at">skip =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Date =</span> <span class="fu">as.character</span>(Date)) <span class="sc">|&gt;</span> </span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Date =</span> <span class="fu">as.Date</span>(<span class="fu">paste</span>(Date,<span class="dv">01</span>), <span class="at">format =</span> <span class="st">'%Y%m%d'</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Date)</span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co"># If returns are in percentages, convert to decimals:</span></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> raw <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(SL, SH, BL, BH, MKT, RF), <span class="sc">~</span> .x<span class="sc">/</span><span class="dv">100</span>))</span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>assets <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"SL"</span>,<span class="st">"SH"</span>,<span class="st">"BL"</span>,<span class="st">"BH"</span>,<span class="st">"MKT"</span>)</span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>rf_col <span class="ot">&lt;-</span> <span class="st">"RF"</span></span>
-<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"Date"</span>, assets, rf_col) <span class="sc">%in%</span> <span class="fu">names</span>(raw)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quantmod)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quantreg)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Empirical Frontier (R): Full sample + two subsamples</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1) Load data ----</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Change the file/sheet names below to match your spreadsheet</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>path_xlsx <span class="ot">&lt;-</span> <span class="st">"../Data/Problem3.5_data.xlsx"</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>sheet_nm  <span class="ot">&lt;-</span> <span class="st">"Sheet1"</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(path_xlsx, <span class="at">sheet =</span> sheet_nm, </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">'Date'</span>,<span class="st">"SL"</span>,<span class="st">"SH"</span>,<span class="st">"BL"</span>,<span class="st">"BH"</span>,<span class="st">"MKT"</span>, <span class="st">"RF"</span>), <span class="at">skip =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Date =</span> <span class="fu">as.character</span>(Date)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Date =</span> <span class="fu">as.Date</span>(<span class="fu">paste</span>(Date,<span class="dv">01</span>), <span class="at">format =</span> <span class="st">'%Y%m%d'</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Date)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># If returns are in percentages, convert to decimals:</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> raw <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(SL, SH, BL, BH, MKT, RF), <span class="sc">~</span> .x<span class="sc">/</span><span class="dv">100</span>))</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>assets <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"SL"</span>,<span class="st">"SH"</span>,<span class="st">"BL"</span>,<span class="st">"BH"</span>,<span class="st">"MKT"</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>rf_col <span class="ot">&lt;-</span> <span class="st">"RF"</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"Date"</span>, assets, rf_col) <span class="sc">%in%</span> <span class="fu">names</span>(raw)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ol type="a">
 <li><p>Estimate the vector of sample mean excess returns and the covariance matrix of excess returns for each of the samples. Use these estimates to compute two ex-post mean–variance efficient sets: one for portfolios not including the riskless asset and one including the riskless asset. Plot the two sets on a graph with the standard deviation of excess returns on the horizontal axis and the mean excess return on the vertical axis, and indicate where each of the four Fama-French portfolios and the market portfolio lie. Calculate the Sharpe ratios of the tangency portfolio and the market portfolio.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build excess returns for the risky assets</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> raw <span class="sc">|&gt;</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(assets), \(x) x <span class="sc">-</span> .data[[rf_col]], <span class="at">.names =</span> <span class="st">"{.col}_ex"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>     <span class="fu">select</span>(<span class="st">'Date'</span>, <span class="st">'RF'</span>, <span class="fu">ends_with</span>(<span class="st">'_ex'</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">str_remove</span>(.x, <span class="st">"_ex"</span>), <span class="fu">ends_with</span>(<span class="st">"_ex"</span>), <span class="at">.cols =</span> <span class="fu">ends_with</span>(<span class="st">"_ex"</span>))</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2) Define samples ----</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>rng_full <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">ymd</span>(<span class="st">"1926-07-01"</span>), <span class="fu">ymd</span>(<span class="st">"2016-06-30"</span>))</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>rng_1    <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">ymd</span>(<span class="st">"1926-07-01"</span>), <span class="fu">ymd</span>(<span class="st">"1963-12-31"</span>))</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>rng_2    <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">ymd</span>(<span class="st">"1964-01-01"</span>), <span class="fu">ymd</span>(<span class="st">"2016-06-30"</span>))</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Full (1926-07 to 2016-06)</span><span class="st">`</span> <span class="ot">=</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> rng_full[<span class="dv">1</span>], Date <span class="sc">&lt;=</span> rng_full[<span class="dv">2</span>]),</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1926-07 to 1963-12</span><span class="st">`</span>        <span class="ot">=</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> rng_1[<span class="dv">1</span>],   Date <span class="sc">&lt;=</span> rng_1[<span class="dv">2</span>]),</span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1964-01 to 2016-06</span><span class="st">`</span>        <span class="ot">=</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> rng_2[<span class="dv">1</span>],   Date <span class="sc">&lt;=</span> rng_2[<span class="dv">2</span>])</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3) Helper functions (Markowitz algebra, no short-sale constraints) ----</span></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>stat_excess <span class="ot">&lt;-</span> <span class="cf">function</span>(X, rf) {</span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># X: data frame of the 5 *excess* returns (SL..MKT), rf: risk-free (level, not excess)</span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  R  <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">select</span>(X, <span class="fu">all_of</span>(assets)))     <span class="co"># T x N excess returns</span></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(R)                              <span class="co"># N x 1 (mean excess)</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>  S  <span class="ot">&lt;-</span> <span class="fu">cov</span>(R)                                   <span class="co"># N x N (covariance)</span></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">mu =</span> mu, <span class="at">S =</span> S, <span class="at">rf =</span> <span class="fu">mean</span>(X[[rf_col]]), <span class="at">R =</span> R)</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>mv_constants <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S) {</span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>  iS <span class="ot">&lt;-</span> <span class="fu">solve</span>(S)</span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>  one <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(mu))</span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>  A <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(one) <span class="sc">%*%</span> iS <span class="sc">%*%</span> one)</span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>  B <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(one) <span class="sc">%*%</span> iS <span class="sc">%*%</span> mu)</span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>  C <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(mu)  <span class="sc">%*%</span> iS <span class="sc">%*%</span> mu)</span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> A<span class="sc">*</span>C <span class="sc">-</span> B<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">A=</span>A,<span class="at">B=</span>B,<span class="at">C=</span>C,<span class="at">D=</span>D,<span class="at">iS=</span>iS,<span class="at">one=</span>one)</span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Minimum-variance weights given target mean excess return m (sum w = 1)</span></span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>w_mv_target <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, m) {</span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>  K <span class="ot">&lt;-</span> <span class="fu">mv_constants</span>(mu, S)</span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(K, {</span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>    lam  <span class="ot">&lt;-</span> (C <span class="sc">-</span> B<span class="sc">*</span>m) <span class="sc">/</span> D</span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>    gam  <span class="ot">&lt;-</span> (A<span class="sc">*</span>m <span class="sc">-</span> B) <span class="sc">/</span> D</span>
-<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>    w    <span class="ot">&lt;-</span> lam <span class="sc">*</span> iS <span class="sc">%*%</span> one <span class="sc">+</span> gam <span class="sc">*</span> iS <span class="sc">%*%</span> mu</span>
-<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.numeric</span>(w)</span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Tangency (max Sharpe) portfolio with risk-free (no weight constraint before normalization)</span></span>
-<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>w_tangent <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, rf_level) {</span>
-<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Here mu are *excess* means already =&gt; rf is only used for plotting the CML anchor</span></span>
-<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>  iS <span class="ot">&lt;-</span> <span class="fu">solve</span>(S)</span>
-<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>  k  <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(mu) <span class="sc">%*%</span> iS <span class="sc">%*%</span> mu)        <span class="co"># squared max Sharpe ratio</span></span>
-<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>  w_unnorm <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(iS <span class="sc">%*%</span> mu)</span>
-<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> w_unnorm <span class="sc">/</span> <span class="fu">sum</span>(w_unnorm)                <span class="co"># normalize to sum to 1 for reporting</span></span>
-<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">w =</span> w, <span class="at">sr =</span> <span class="fu">sqrt</span>(k))</span>
-<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Build analytical frontier (without risk-free) along a grid of target means</span></span>
-<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a>frontier_df <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, <span class="at">n =</span> <span class="dv">200</span>) {</span>
-<span id="cb26-61"><a href="#cb26-61" aria-hidden="true" tabindex="-1"></a>  K <span class="ot">&lt;-</span> <span class="fu">mv_constants</span>(mu, S)</span>
-<span id="cb26-62"><a href="#cb26-62" aria-hidden="true" tabindex="-1"></a>  <span class="co"># target means grid from slightly below min asset mean to above max</span></span>
-<span id="cb26-63"><a href="#cb26-63" aria-hidden="true" tabindex="-1"></a>  m_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(mu)<span class="sc">*</span><span class="fl">0.9</span>, <span class="fu">max</span>(mu)<span class="sc">*</span><span class="fl">1.1</span>, <span class="at">length.out =</span> n)</span>
-<span id="cb26-64"><a href="#cb26-64" aria-hidden="true" tabindex="-1"></a>  var_grid <span class="ot">&lt;-</span> (K<span class="sc">$</span>A<span class="sc">*</span>m_grid<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>K<span class="sc">$</span>B<span class="sc">*</span>m_grid <span class="sc">+</span> K<span class="sc">$</span>C) <span class="sc">/</span> K<span class="sc">$</span>D</span>
-<span id="cb26-65"><a href="#cb26-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">mean =</span> m_grid, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fu">pmax</span>(var_grid, <span class="dv">0</span>)))</span>
-<span id="cb26-66"><a href="#cb26-66" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-67"><a href="#cb26-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-68"><a href="#cb26-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Capital Market Line points between rf and tangent portfolio expected return</span></span>
-<span id="cb26-69"><a href="#cb26-69" aria-hidden="true" tabindex="-1"></a>cml_df <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, rf_level, <span class="at">n =</span> <span class="dv">100</span>) {</span>
-<span id="cb26-70"><a href="#cb26-70" aria-hidden="true" tabindex="-1"></a>  tan <span class="ot">&lt;-</span> <span class="fu">w_tangent</span>(mu, S, rf_level)</span>
-<span id="cb26-71"><a href="#cb26-71" aria-hidden="true" tabindex="-1"></a>  m_tan <span class="ot">&lt;-</span> <span class="fu">sum</span>(tan<span class="sc">$</span>w <span class="sc">*</span> mu) <span class="sc">+</span> rf_level          <span class="co"># total mean (incl. rf) if you were to invest fully in tangent</span></span>
-<span id="cb26-72"><a href="#cb26-72" aria-hidden="true" tabindex="-1"></a>  sd_tan <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.numeric</span>(<span class="fu">t</span>(tan<span class="sc">$</span>w) <span class="sc">%*%</span> S <span class="sc">%*%</span> tan<span class="sc">$</span>w))</span>
-<span id="cb26-73"><a href="#cb26-73" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Points along the CML from rf to (rf + m_excess_at_tan) at multiples of tangent's sd</span></span>
-<span id="cb26-74"><a href="#cb26-74" aria-hidden="true" tabindex="-1"></a>  sd_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, sd_tan<span class="sc">*</span><span class="fl">1.4</span>, <span class="at">length.out =</span> n)</span>
-<span id="cb26-75"><a href="#cb26-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
-<span id="cb26-76"><a href="#cb26-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd   =</span> sd_seq,</span>
-<span id="cb26-77"><a href="#cb26-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> rf_level <span class="sc">+</span> tan<span class="sc">$</span>sr <span class="sc">*</span> sd_seq</span>
-<span id="cb26-78"><a href="#cb26-78" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-79"><a href="#cb26-79" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-80"><a href="#cb26-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-81"><a href="#cb26-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Format weights as a compact label</span></span>
-<span id="cb26-82"><a href="#cb26-82" aria-hidden="true" tabindex="-1"></a>fmt_w <span class="ot">&lt;-</span> <span class="cf">function</span>(w) <span class="fu">paste0</span>(<span class="fu">names</span>(w), <span class="st">"="</span>, <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, w), <span class="at">collapse =</span> <span class="st">", "</span>)</span>
-<span id="cb26-83"><a href="#cb26-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-84"><a href="#cb26-84" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 4) Run all samples and plot ----</span></span>
-<span id="cb26-85"><a href="#cb26-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-86"><a href="#cb26-86" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(samples), <span class="cf">function</span>(lbl) {</span>
-<span id="cb26-87"><a href="#cb26-87" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> samples[[lbl]]</span>
-<span id="cb26-88"><a href="#cb26-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-89"><a href="#cb26-89" aria-hidden="true" tabindex="-1"></a>  <span class="co"># stats</span></span>
-<span id="cb26-90"><a href="#cb26-90" aria-hidden="true" tabindex="-1"></a>  st  <span class="ot">&lt;-</span> <span class="fu">stat_excess</span>(X, rf_col)</span>
-<span id="cb26-91"><a href="#cb26-91" aria-hidden="true" tabindex="-1"></a>  mu  <span class="ot">&lt;-</span> st<span class="sc">$</span>mu</span>
-<span id="cb26-92"><a href="#cb26-92" aria-hidden="true" tabindex="-1"></a>  S   <span class="ot">&lt;-</span> st<span class="sc">$</span>S</span>
-<span id="cb26-93"><a href="#cb26-93" aria-hidden="true" tabindex="-1"></a>  rfL <span class="ot">&lt;-</span> st<span class="sc">$</span>rf</span>
-<span id="cb26-94"><a href="#cb26-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-95"><a href="#cb26-95" aria-hidden="true" tabindex="-1"></a>  <span class="co"># frontiers</span></span>
-<span id="cb26-96"><a href="#cb26-96" aria-hidden="true" tabindex="-1"></a>  fr  <span class="ot">&lt;-</span> <span class="fu">frontier_df</span>(mu, S)</span>
-<span id="cb26-97"><a href="#cb26-97" aria-hidden="true" tabindex="-1"></a>  cml <span class="ot">&lt;-</span> <span class="fu">cml_df</span>(mu, S, rfL)</span>
-<span id="cb26-98"><a href="#cb26-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-99"><a href="#cb26-99" aria-hidden="true" tabindex="-1"></a>  <span class="co"># individual risky assets (excess mean vs sd)</span></span>
-<span id="cb26-100"><a href="#cb26-100" aria-hidden="true" tabindex="-1"></a>  pts <span class="ot">&lt;-</span> <span class="fu">sapply</span>(assets, <span class="cf">function</span>(a) {</span>
-<span id="cb26-101"><a href="#cb26-101" aria-hidden="true" tabindex="-1"></a>    r <span class="ot">&lt;-</span> X[[a]]</span>
-<span id="cb26-102"><a href="#cb26-102" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="at">mean =</span> <span class="fu">mean</span>(r), <span class="at">sd =</span> <span class="fu">sd</span>(r))</span>
-<span id="cb26-103"><a href="#cb26-103" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb26-104"><a href="#cb26-104" aria-hidden="true" tabindex="-1"></a>  pts <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">asset =</span> assets,</span>
-<span id="cb26-105"><a href="#cb26-105" aria-hidden="true" tabindex="-1"></a>                <span class="at">mean  =</span> pts[<span class="st">"mean"</span>,],</span>
-<span id="cb26-106"><a href="#cb26-106" aria-hidden="true" tabindex="-1"></a>                <span class="at">sd    =</span> pts[<span class="st">"sd"</span>,])</span>
-<span id="cb26-107"><a href="#cb26-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-108"><a href="#cb26-108" aria-hidden="true" tabindex="-1"></a>  <span class="co"># tangency and market metrics</span></span>
-<span id="cb26-109"><a href="#cb26-109" aria-hidden="true" tabindex="-1"></a>  tan  <span class="ot">&lt;-</span> <span class="fu">w_tangent</span>(mu, S, rfL)</span>
-<span id="cb26-110"><a href="#cb26-110" aria-hidden="true" tabindex="-1"></a>  wtan <span class="ot">&lt;-</span> <span class="fu">setNames</span>(tan<span class="sc">$</span>w, assets)</span>
-<span id="cb26-111"><a href="#cb26-111" aria-hidden="true" tabindex="-1"></a>  sr_tan <span class="ot">&lt;-</span> tan<span class="sc">$</span>sr</span>
-<span id="cb26-112"><a href="#cb26-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-113"><a href="#cb26-113" aria-hidden="true" tabindex="-1"></a>  <span class="co"># market portfolio Sharpe (ex-post)</span></span>
-<span id="cb26-114"><a href="#cb26-114" aria-hidden="true" tabindex="-1"></a>  mkt_ex <span class="ot">&lt;-</span> X<span class="sc">$</span>MKT</span>
-<span id="cb26-115"><a href="#cb26-115" aria-hidden="true" tabindex="-1"></a>  sr_mkt <span class="ot">&lt;-</span> <span class="fu">mean</span>(mkt_ex) <span class="sc">/</span> <span class="fu">sd</span>(mkt_ex)</span>
-<span id="cb26-116"><a href="#cb26-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-117"><a href="#cb26-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> lbl, <span class="at">mu =</span> mu, <span class="at">S =</span> S, <span class="at">rf =</span> rfL,</span>
-<span id="cb26-118"><a href="#cb26-118" aria-hidden="true" tabindex="-1"></a>       <span class="at">frontier =</span> fr, <span class="at">cml =</span> cml, <span class="at">points =</span> pts,</span>
-<span id="cb26-119"><a href="#cb26-119" aria-hidden="true" tabindex="-1"></a>       <span class="at">w_tan =</span> wtan, <span class="at">sr_tan =</span> sr_tan, <span class="at">sr_mkt =</span> sr_mkt)</span>
-<span id="cb26-120"><a href="#cb26-120" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb26-121"><a href="#cb26-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-122"><a href="#cb26-122" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 5) Visualization + console output ----</span></span>
-<span id="cb26-123"><a href="#cb26-123" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (res <span class="cf">in</span> results) {</span>
-<span id="cb26-124"><a href="#cb26-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">=============================</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-125"><a href="#cb26-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Sample:"</span>, res<span class="sc">$</span>label, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-126"><a href="#cb26-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"-----------------------------</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-127"><a href="#cb26-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Mean excess returns (annualized if you like: multiply by 12):</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-128"><a href="#cb26-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">round</span>(res<span class="sc">$</span>mu, <span class="dv">6</span>))</span>
-<span id="cb26-129"><a href="#cb26-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Covariance matrix (monthly excess returns):</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-130"><a href="#cb26-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">round</span>(res<span class="sc">$</span>S, <span class="dv">6</span>))</span>
-<span id="cb26-131"><a href="#cb26-131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Risk-free (average, monthly):"</span>, <span class="fu">round</span>(res<span class="sc">$</span>rf, <span class="dv">6</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-132"><a href="#cb26-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Tangency weights (sum to 1):</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-133"><a href="#cb26-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">round</span>(res<span class="sc">$</span>w_tan, <span class="dv">4</span>))</span>
-<span id="cb26-134"><a href="#cb26-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Sharpe (Tangency):"</span>, <span class="fu">round</span>(res<span class="sc">$</span>sr_tan, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-135"><a href="#cb26-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Sharpe (Market):  "</span>, <span class="fu">round</span>(res<span class="sc">$</span>sr_mkt, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb26-136"><a href="#cb26-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-137"><a href="#cb26-137" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prepare df for plotting</span></span>
-<span id="cb26-138"><a href="#cb26-138" aria-hidden="true" tabindex="-1"></a>  p_df1 <span class="ot">&lt;-</span> res<span class="sc">$</span>frontier <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">set =</span> <span class="st">"Efficient set (no RF)"</span>)</span>
-<span id="cb26-139"><a href="#cb26-139" aria-hidden="true" tabindex="-1"></a>  p_df2 <span class="ot">&lt;-</span> res<span class="sc">$</span>cml      <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">set =</span> <span class="st">"With RF (CML)"</span>)</span>
-<span id="cb26-140"><a href="#cb26-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-141"><a href="#cb26-141" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Identify minimum-variance point on analytical frontier (for reference)</span></span>
-<span id="cb26-142"><a href="#cb26-142" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (Optional cosmetic: we keep entire frontier; the upper branch is the efficient one.)</span></span>
-<span id="cb26-143"><a href="#cb26-143" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb26-144"><a href="#cb26-144" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">data =</span> p_df1, <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">linetype =</span> set)) <span class="sc">+</span></span>
-<span id="cb26-145"><a href="#cb26-145" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">data =</span> p_df2, <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">linetype =</span> set)) <span class="sc">+</span></span>
-<span id="cb26-146"><a href="#cb26-146" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">data =</span> res<span class="sc">$</span>points, <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">color =</span> asset), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb26-147"><a href="#cb26-147" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="at">data =</span> res<span class="sc">$</span>points,</span>
-<span id="cb26-148"><a href="#cb26-148" aria-hidden="true" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">label =</span> asset, <span class="at">color =</span> asset),</span>
-<span id="cb26-149"><a href="#cb26-149" aria-hidden="true" tabindex="-1"></a>              <span class="at">nudge_y =</span> <span class="fl">0.0005</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb26-150"><a href="#cb26-150" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="st">"Std. dev. of excess return"</span>, <span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
-<span id="cb26-151"><a href="#cb26-151" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="st">"Mean excess return"</span>, <span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
-<span id="cb26-152"><a href="#cb26-152" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Efficient set (no RF)"</span> <span class="ot">=</span> <span class="st">"solid"</span>,</span>
-<span id="cb26-153"><a href="#cb26-153" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"With RF (CML)"</span>        <span class="ot">=</span> <span class="st">"dashed"</span>)) <span class="sc">+</span></span>
-<span id="cb26-154"><a href="#cb26-154" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste0</span>(<span class="st">"Efficient Sets and Asset Positions — "</span>, res<span class="sc">$</span>label)) <span class="sc">+</span></span>
-<span id="cb26-155"><a href="#cb26-155" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb26-156"><a href="#cb26-156" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb26-157"><a href="#cb26-157" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span>
-<span id="cb26-158"><a href="#cb26-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-159"><a href="#cb26-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(g)</span>
-<span id="cb26-160"><a href="#cb26-160" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build excess returns for the risky assets</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> raw <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(assets), \(x) x <span class="sc">-</span> .data[[rf_col]], <span class="at">.names =</span> <span class="st">"{.col}_ex"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>     <span class="fu">select</span>(<span class="st">'Date'</span>, <span class="st">'RF'</span>, <span class="fu">ends_with</span>(<span class="st">'_ex'</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">str_remove</span>(.x, <span class="st">"_ex"</span>), <span class="fu">ends_with</span>(<span class="st">"_ex"</span>), <span class="at">.cols =</span> <span class="fu">ends_with</span>(<span class="st">"_ex"</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2) Define samples ----</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>rng_full <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">ymd</span>(<span class="st">"1926-07-01"</span>), <span class="fu">ymd</span>(<span class="st">"2016-06-30"</span>))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>rng_1    <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">ymd</span>(<span class="st">"1926-07-01"</span>), <span class="fu">ymd</span>(<span class="st">"1963-12-31"</span>))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>rng_2    <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">ymd</span>(<span class="st">"1964-01-01"</span>), <span class="fu">ymd</span>(<span class="st">"2016-06-30"</span>))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Full (1926-07 to 2016-06)</span><span class="st">`</span> <span class="ot">=</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> rng_full[<span class="dv">1</span>], Date <span class="sc">&lt;=</span> rng_full[<span class="dv">2</span>]),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1926-07 to 1963-12</span><span class="st">`</span>        <span class="ot">=</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> rng_1[<span class="dv">1</span>],   Date <span class="sc">&lt;=</span> rng_1[<span class="dv">2</span>]),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1964-01 to 2016-06</span><span class="st">`</span>        <span class="ot">=</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(Date <span class="sc">&gt;=</span> rng_2[<span class="dv">1</span>],   Date <span class="sc">&lt;=</span> rng_2[<span class="dv">2</span>])</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3) Helper functions (Markowitz algebra, no short-sale constraints) ----</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>stat_excess <span class="ot">&lt;-</span> <span class="cf">function</span>(X, rf) {</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># X: data frame of the 5 *excess* returns (SL..MKT), rf: risk-free (level, not excess)</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  R  <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">select</span>(X, <span class="fu">all_of</span>(assets)))     <span class="co"># T x N excess returns</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(R)                              <span class="co"># N x 1 (mean excess)</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  S  <span class="ot">&lt;-</span> <span class="fu">cov</span>(R)                                   <span class="co"># N x N (covariance)</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">mu =</span> mu, <span class="at">S =</span> S, <span class="at">rf =</span> <span class="fu">mean</span>(X[[rf_col]]), <span class="at">R =</span> R)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>mv_constants <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S) {</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  iS <span class="ot">&lt;-</span> <span class="fu">solve</span>(S)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  one <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(mu))</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  A <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(one) <span class="sc">%*%</span> iS <span class="sc">%*%</span> one)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  B <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(one) <span class="sc">%*%</span> iS <span class="sc">%*%</span> mu)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  C <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(mu)  <span class="sc">%*%</span> iS <span class="sc">%*%</span> mu)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> A<span class="sc">*</span>C <span class="sc">-</span> B<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">A=</span>A,<span class="at">B=</span>B,<span class="at">C=</span>C,<span class="at">D=</span>D,<span class="at">iS=</span>iS,<span class="at">one=</span>one)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Minimum-variance weights given target mean excess return m (sum w = 1)</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>w_mv_target <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, m) {</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  K <span class="ot">&lt;-</span> <span class="fu">mv_constants</span>(mu, S)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(K, {</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    lam  <span class="ot">&lt;-</span> (C <span class="sc">-</span> B<span class="sc">*</span>m) <span class="sc">/</span> D</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    gam  <span class="ot">&lt;-</span> (A<span class="sc">*</span>m <span class="sc">-</span> B) <span class="sc">/</span> D</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    w    <span class="ot">&lt;-</span> lam <span class="sc">*</span> iS <span class="sc">%*%</span> one <span class="sc">+</span> gam <span class="sc">*</span> iS <span class="sc">%*%</span> mu</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.numeric</span>(w)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Tangency (max Sharpe) portfolio with risk-free (no weight constraint before normalization)</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>w_tangent <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, rf_level) {</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Here mu are *excess* means already =&gt; rf is only used for plotting the CML anchor</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  iS <span class="ot">&lt;-</span> <span class="fu">solve</span>(S)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  k  <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(mu) <span class="sc">%*%</span> iS <span class="sc">%*%</span> mu)        <span class="co"># squared max Sharpe ratio</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  w_unnorm <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(iS <span class="sc">%*%</span> mu)</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> w_unnorm <span class="sc">/</span> <span class="fu">sum</span>(w_unnorm)                <span class="co"># normalize to sum to 1 for reporting</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">w =</span> w, <span class="at">sr =</span> <span class="fu">sqrt</span>(k))</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Build analytical frontier (without risk-free) along a grid of target means</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>frontier_df <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, <span class="at">n =</span> <span class="dv">200</span>) {</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  K <span class="ot">&lt;-</span> <span class="fu">mv_constants</span>(mu, S)</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  <span class="co"># target means grid from slightly below min asset mean to above max</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  m_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(mu)<span class="sc">*</span><span class="fl">0.9</span>, <span class="fu">max</span>(mu)<span class="sc">*</span><span class="fl">1.1</span>, <span class="at">length.out =</span> n)</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  var_grid <span class="ot">&lt;-</span> (K<span class="sc">$</span>A<span class="sc">*</span>m_grid<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span>K<span class="sc">$</span>B<span class="sc">*</span>m_grid <span class="sc">+</span> K<span class="sc">$</span>C) <span class="sc">/</span> K<span class="sc">$</span>D</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">mean =</span> m_grid, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fu">pmax</span>(var_grid, <span class="dv">0</span>)))</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Capital Market Line points between rf and tangent portfolio expected return</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>cml_df <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, S, rf_level, <span class="at">n =</span> <span class="dv">100</span>) {</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  tan <span class="ot">&lt;-</span> <span class="fu">w_tangent</span>(mu, S, rf_level)</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  m_tan <span class="ot">&lt;-</span> <span class="fu">sum</span>(tan<span class="sc">$</span>w <span class="sc">*</span> mu) <span class="sc">+</span> rf_level          <span class="co"># total mean (incl. rf) if you were to invest fully in tangent</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  sd_tan <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.numeric</span>(<span class="fu">t</span>(tan<span class="sc">$</span>w) <span class="sc">%*%</span> S <span class="sc">%*%</span> tan<span class="sc">$</span>w))</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Points along the CML from rf to (rf + m_excess_at_tan) at multiples of tangent's sd</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>  sd_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, sd_tan<span class="sc">*</span><span class="fl">1.4</span>, <span class="at">length.out =</span> n)</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd   =</span> sd_seq,</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> rf_level <span class="sc">+</span> tan<span class="sc">$</span>sr <span class="sc">*</span> sd_seq</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Format weights as a compact label</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>fmt_w <span class="ot">&lt;-</span> <span class="cf">function</span>(w) <span class="fu">paste0</span>(<span class="fu">names</span>(w), <span class="st">"="</span>, <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, w), <span class="at">collapse =</span> <span class="st">", "</span>)</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 4) Run all samples and plot ----</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(samples), <span class="cf">function</span>(lbl) {</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> samples[[lbl]]</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>  <span class="co"># stats</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>  st  <span class="ot">&lt;-</span> <span class="fu">stat_excess</span>(X, rf_col)</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>  mu  <span class="ot">&lt;-</span> st<span class="sc">$</span>mu</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>  S   <span class="ot">&lt;-</span> st<span class="sc">$</span>S</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>  rfL <span class="ot">&lt;-</span> st<span class="sc">$</span>rf</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>  <span class="co"># frontiers</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>  fr  <span class="ot">&lt;-</span> <span class="fu">frontier_df</span>(mu, S)</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>  cml <span class="ot">&lt;-</span> <span class="fu">cml_df</span>(mu, S, rfL)</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>  <span class="co"># individual risky assets (excess mean vs sd)</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>  pts <span class="ot">&lt;-</span> <span class="fu">sapply</span>(assets, <span class="cf">function</span>(a) {</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    r <span class="ot">&lt;-</span> X[[a]]</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="at">mean =</span> <span class="fu">mean</span>(r), <span class="at">sd =</span> <span class="fu">sd</span>(r))</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>  pts <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">asset =</span> assets,</span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>                <span class="at">mean  =</span> pts[<span class="st">"mean"</span>,],</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>                <span class="at">sd    =</span> pts[<span class="st">"sd"</span>,])</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>  <span class="co"># tangency and market metrics</span></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>  tan  <span class="ot">&lt;-</span> <span class="fu">w_tangent</span>(mu, S, rfL)</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>  wtan <span class="ot">&lt;-</span> <span class="fu">setNames</span>(tan<span class="sc">$</span>w, assets)</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>  sr_tan <span class="ot">&lt;-</span> tan<span class="sc">$</span>sr</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>  <span class="co"># market portfolio Sharpe (ex-post)</span></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>  mkt_ex <span class="ot">&lt;-</span> X<span class="sc">$</span>MKT</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>  sr_mkt <span class="ot">&lt;-</span> <span class="fu">mean</span>(mkt_ex) <span class="sc">/</span> <span class="fu">sd</span>(mkt_ex)</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> lbl, <span class="at">mu =</span> mu, <span class="at">S =</span> S, <span class="at">rf =</span> rfL,</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>       <span class="at">frontier =</span> fr, <span class="at">cml =</span> cml, <span class="at">points =</span> pts,</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>       <span class="at">w_tan =</span> wtan, <span class="at">sr_tan =</span> sr_tan, <span class="at">sr_mkt =</span> sr_mkt)</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 5) Visualization + console output ----</span></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (res <span class="cf">in</span> results) {</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">=============================</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Sample:"</span>, res<span class="sc">$</span>label, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"-----------------------------</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Mean excess returns (annualized if you like: multiply by 12):</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">round</span>(res<span class="sc">$</span>mu, <span class="dv">6</span>))</span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Covariance matrix (monthly excess returns):</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">round</span>(res<span class="sc">$</span>S, <span class="dv">6</span>))</span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Risk-free (average, monthly):"</span>, <span class="fu">round</span>(res<span class="sc">$</span>rf, <span class="dv">6</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Tangency weights (sum to 1):</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">round</span>(res<span class="sc">$</span>w_tan, <span class="dv">4</span>))</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Sharpe (Tangency):"</span>, <span class="fu">round</span>(res<span class="sc">$</span>sr_tan, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Sharpe (Market):  "</span>, <span class="fu">round</span>(res<span class="sc">$</span>sr_mkt, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prepare df for plotting</span></span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>  p_df1 <span class="ot">&lt;-</span> res<span class="sc">$</span>frontier <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">set =</span> <span class="st">"Efficient set (no RF)"</span>)</span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>  p_df2 <span class="ot">&lt;-</span> res<span class="sc">$</span>cml      <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">set =</span> <span class="st">"With RF (CML)"</span>)</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Identify minimum-variance point on analytical frontier (for reference)</span></span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (Optional cosmetic: we keep entire frontier; the upper branch is the efficient one.)</span></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">data =</span> p_df1, <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">linetype =</span> set)) <span class="sc">+</span></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">data =</span> p_df2, <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">linetype =</span> set)) <span class="sc">+</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">data =</span> res<span class="sc">$</span>points, <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">color =</span> asset), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="at">data =</span> res<span class="sc">$</span>points,</span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">x =</span> sd, <span class="at">y =</span> mean, <span class="at">label =</span> asset, <span class="at">color =</span> asset),</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>              <span class="at">nudge_y =</span> <span class="fl">0.0005</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="st">"Std. dev. of excess return"</span>, <span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="st">"Mean excess return"</span>, <span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Efficient set (no RF)"</span> <span class="ot">=</span> <span class="st">"solid"</span>,</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"With RF (CML)"</span>        <span class="ot">=</span> <span class="st">"dashed"</span>)) <span class="sc">+</span></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste0</span>(<span class="st">"Efficient Sets and Asset Positions — "</span>, res<span class="sc">$</span>label)) <span class="sc">+</span></span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(g)</span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 =============================
@@ -571,102 +458,97 @@ Sharpe (Market):   0.111 </code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 6) Notes ----</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># - Returns are treated as MONTHLY. To report annualized means/SDs or Sharpe ratios,</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   multiply mean by 12 and SD by sqrt(12); Sharpe is invariant if both are annualized.</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># - The efficient set “without RF” is the full (unconstrained) Markowitz frontier allowing shorting.</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   If you need no-short-sale constraints, you’ll need a QP solver (e.g., quadprog) across target means.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 6) Notes ----</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># - Returns are treated as MONTHLY. To report annualized means/SDs or Sharpe ratios,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   multiply mean by 12 and SD by sqrt(12); Sharpe is invariant if both are annualized.</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># - The efficient set “without RF” is the full (unconstrained) Markowitz frontier allowing shorting.</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   If you need no-short-sale constraints, you’ll need a QP solver (e.g., quadprog) across target means.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></li>
 <li><p>Plot expected return against <span class="math inline">\(\beta\)</span> for each of the portfolios. Calculate <span class="math inline">\(\alpha\)</span> s and discuss your results.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># CAPM with fixest + data.table, SML plot, alphas/betas</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (assumes df already in memory with excess returns)</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to data.table</span></span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>DT <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(df)</span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>DT[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">SL_ex =</span> SL,</span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">SH_ex =</span> SH,</span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">BL_ex =</span> BL,</span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">BH_ex =</span> BH,</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">MKT_ex =</span> MKT)]</span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- define samples (data.table-style) ----</span></span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>s_full <span class="ot">&lt;-</span> DT[Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1926-07-01"</span>) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2016-06-30"</span>)]</span>
-<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>s_1    <span class="ot">&lt;-</span> DT[Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1926-07-01"</span>) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"1963-12-31"</span>)]</span>
-<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>s_2    <span class="ot">&lt;-</span> DT[Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1964-01-01"</span>) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2016-06-30"</span>)]</span>
-<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Full (1926–2016)</span><span class="st">`</span> <span class="ot">=</span> s_full,</span>
-<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1926–1963</span><span class="st">`</span>        <span class="ot">=</span> s_1,</span>
-<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1964–2016</span><span class="st">`</span>        <span class="ot">=</span> s_2</span>
-<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- function: run CAPM with fixest (NW lags) + SML plot ----</span></span>
-<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>capm_fixest_dt <span class="ot">&lt;-</span> <span class="cf">function</span>(DT_sample, label, <span class="at">nw_lag =</span> <span class="dv">12</span>) {</span>
-<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>  assets <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"SL_ex"</span>, <span class="st">"SH_ex"</span>, <span class="st">"BL_ex"</span>, <span class="st">"BH_ex"</span>)</span>
-<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run feols for each asset with Newey-West vcov</span></span>
-<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>(assets, <span class="cf">function</span>(a) {</span>
-<span id="cb31-37"><a href="#cb31-37" aria-hidden="true" tabindex="-1"></a>    fml <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste0</span>(a, <span class="st">" ~ MKT_ex"</span>))</span>
-<span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a>    m   <span class="ot">&lt;-</span> <span class="fu">feols</span>(fml, <span class="at">data =</span> DT_sample, <span class="at">vcov =</span> <span class="fu">NW</span>(<span class="at">lag =</span> nw_lag), <span class="at">panel.id =</span> <span class="sc">~</span> Date <span class="sc">+</span> RF)</span>
-<span id="cb31-39"><a href="#cb31-39" aria-hidden="true" tabindex="-1"></a>    ct  <span class="ot">&lt;-</span> <span class="fu">coeftable</span>(m)</span>
-<span id="cb31-40"><a href="#cb31-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-41"><a href="#cb31-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check coefficient names to avoid subscript errors</span></span>
-<span id="cb31-42"><a href="#cb31-42" aria-hidden="true" tabindex="-1"></a>    intercept_name <span class="ot">&lt;-</span> <span class="cf">if</span>(<span class="st">"(Intercept)"</span> <span class="sc">%in%</span> <span class="fu">rownames</span>(ct)) <span class="st">"(Intercept)"</span> <span class="cf">else</span> <span class="fu">names</span>(<span class="fu">coef</span>(m))[<span class="dv">1</span>]</span>
-<span id="cb31-43"><a href="#cb31-43" aria-hidden="true" tabindex="-1"></a>    slope_name <span class="ot">&lt;-</span> <span class="cf">if</span>(<span class="st">"MKT_ex"</span> <span class="sc">%in%</span> <span class="fu">rownames</span>(ct)) <span class="st">"MKT_ex"</span> <span class="cf">else</span> <span class="fu">names</span>(<span class="fu">coef</span>(m))[<span class="dv">2</span>]</span>
-<span id="cb31-44"><a href="#cb31-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-45"><a href="#cb31-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
-<span id="cb31-46"><a href="#cb31-46" aria-hidden="true" tabindex="-1"></a>      <span class="at">asset       =</span> <span class="fu">gsub</span>(<span class="st">"_ex$"</span>, <span class="st">""</span>, a),  <span class="co"># Remove _ex suffix for display</span></span>
-<span id="cb31-47"><a href="#cb31-47" aria-hidden="true" tabindex="-1"></a>      <span class="at">alpha       =</span> <span class="fu">coef</span>(m)[[intercept_name]],</span>
-<span id="cb31-48"><a href="#cb31-48" aria-hidden="true" tabindex="-1"></a>      <span class="at">t_alpha     =</span> ct[intercept_name, <span class="st">"t value"</span>],</span>
-<span id="cb31-49"><a href="#cb31-49" aria-hidden="true" tabindex="-1"></a>      <span class="at">beta        =</span> <span class="fu">coef</span>(m)[[slope_name]],</span>
-<span id="cb31-50"><a href="#cb31-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">t_beta      =</span> ct[slope_name, <span class="st">"t value"</span>],</span>
-<span id="cb31-51"><a href="#cb31-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">mean_excess =</span> DT_sample[, <span class="fu">mean</span>(<span class="fu">get</span>(a), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)]</span>
-<span id="cb31-52"><a href="#cb31-52" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb31-53"><a href="#cb31-53" aria-hidden="true" tabindex="-1"></a>  }))</span>
-<span id="cb31-54"><a href="#cb31-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-55"><a href="#cb31-55" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Security Market Line: E[R_i^e] = beta_i * E[R_m^e]</span></span>
-<span id="cb31-56"><a href="#cb31-56" aria-hidden="true" tabindex="-1"></a>  Em  <span class="ot">&lt;-</span> DT_sample[, <span class="fu">mean</span>(MKT_ex, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)]</span>
-<span id="cb31-57"><a href="#cb31-57" aria-hidden="true" tabindex="-1"></a>  bmin <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">0</span>, res[, <span class="fu">min</span>(beta, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)])</span>
-<span id="cb31-58"><a href="#cb31-58" aria-hidden="true" tabindex="-1"></a>  bmax <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fl">1.4</span>, res[, <span class="fu">max</span>(beta, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)])</span>
-<span id="cb31-59"><a href="#cb31-59" aria-hidden="true" tabindex="-1"></a>  sml <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">beta =</span> <span class="fu">seq</span>(bmin, bmax, <span class="at">length.out =</span> <span class="dv">200</span>))</span>
-<span id="cb31-60"><a href="#cb31-60" aria-hidden="true" tabindex="-1"></a>  sml[, mean_excess <span class="sc">:</span><span class="er">=</span> Em <span class="sc">*</span> beta]</span>
-<span id="cb31-61"><a href="#cb31-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-62"><a href="#cb31-62" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Plot: E[excess return] vs beta</span></span>
-<span id="cb31-63"><a href="#cb31-63" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb31-64"><a href="#cb31-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">data =</span> sml, <span class="fu">aes</span>(beta, mean_excess), <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb31-65"><a href="#cb31-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">data =</span> res, <span class="fu">aes</span>(beta, mean_excess, <span class="at">color =</span> asset), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb31-66"><a href="#cb31-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="at">data =</span> res, <span class="fu">aes</span>(beta, mean_excess, <span class="at">label =</span> asset, <span class="at">color =</span> asset),</span>
-<span id="cb31-67"><a href="#cb31-67" aria-hidden="true" tabindex="-1"></a>              <span class="at">nudge_y =</span> <span class="fl">0.0005</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb31-68"><a href="#cb31-68" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="fu">expression</span>(beta)) <span class="sc">+</span></span>
-<span id="cb31-69"><a href="#cb31-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="st">"Mean excess return"</span>, <span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
-<span id="cb31-70"><a href="#cb31-70" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste0</span>(<span class="st">"Expected Return vs Beta — "</span>, label,</span>
-<span id="cb31-71"><a href="#cb31-71" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"</span><span class="sc">\n</span><span class="st">Dashed:  E[R^e_i] = beta_i · E[R^e_m],  NW lag = "</span>, nw_lag)) <span class="sc">+</span></span>
-<span id="cb31-72"><a href="#cb31-72" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb31-73"><a href="#cb31-73" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span>
-<span id="cb31-74"><a href="#cb31-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-75"><a href="#cb31-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(g)</span>
-<span id="cb31-76"><a href="#cb31-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-77"><a href="#cb31-77" aria-hidden="true" tabindex="-1"></a>  <span class="co"># neat table</span></span>
-<span id="cb31-78"><a href="#cb31-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setcolorder</span>(res, <span class="fu">c</span>(<span class="st">"asset"</span>,<span class="st">"beta"</span>,<span class="st">"t_beta"</span>,<span class="st">"alpha"</span>,<span class="st">"t_alpha"</span>,<span class="st">"mean_excess"</span>))</span>
-<span id="cb31-79"><a href="#cb31-79" aria-hidden="true" tabindex="-1"></a>  res[]</span>
-<span id="cb31-80"><a href="#cb31-80" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb31-81"><a href="#cb31-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-82"><a href="#cb31-82" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- run for all samples ----</span></span>
-<span id="cb31-83"><a href="#cb31-83" aria-hidden="true" tabindex="-1"></a>capm_out <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(samples), <span class="cf">function</span>(nm) {</span>
-<span id="cb31-84"><a href="#cb31-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, nm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">strrep</span>(<span class="st">"="</span>, <span class="fu">nchar</span>(nm)<span class="sc">+</span><span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb31-85"><a href="#cb31-85" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">capm_fixest_dt</span>(samples[[nm]], nm, <span class="at">nw_lag =</span> <span class="dv">12</span>)</span>
-<span id="cb31-86"><a href="#cb31-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(out[, <span class="fu">lapply</span>(.SD, <span class="cf">function</span>(x) <span class="cf">if</span>(<span class="fu">is.numeric</span>(x)) <span class="fu">round</span>(x, <span class="dv">4</span>) <span class="cf">else</span> x)])</span>
-<span id="cb31-87"><a href="#cb31-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(out)</span>
-<span id="cb31-88"><a href="#cb31-88" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># CAPM with fixest + data.table, SML plot, alphas/betas</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (assumes df already in memory with excess returns)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to data.table</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>DT <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(df)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>DT[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">SL_ex =</span> SL,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">SH_ex =</span> SH,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">BL_ex =</span> BL,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">BH_ex =</span> BH,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">MKT_ex =</span> MKT)]</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- define samples (data.table-style) ----</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>s_full <span class="ot">&lt;-</span> DT[Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1926-07-01"</span>) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2016-06-30"</span>)]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>s_1    <span class="ot">&lt;-</span> DT[Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1926-07-01"</span>) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"1963-12-31"</span>)]</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>s_2    <span class="ot">&lt;-</span> DT[Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1964-01-01"</span>) <span class="sc">&amp;</span> Date <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2016-06-30"</span>)]</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Full (1926–2016)</span><span class="st">`</span> <span class="ot">=</span> s_full,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1926–1963</span><span class="st">`</span>        <span class="ot">=</span> s_1,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">1964–2016</span><span class="st">`</span>        <span class="ot">=</span> s_2</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- function: run CAPM with fixest (NW lags) + SML plot ----</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>capm_fixest_dt <span class="ot">&lt;-</span> <span class="cf">function</span>(DT_sample, label, <span class="at">nw_lag =</span> <span class="dv">12</span>) {</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  assets <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"SL_ex"</span>, <span class="st">"SH_ex"</span>, <span class="st">"BL_ex"</span>, <span class="st">"BH_ex"</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run feols for each asset with Newey-West vcov</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(<span class="fu">lapply</span>(assets, <span class="cf">function</span>(a) {</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    fml <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste0</span>(a, <span class="st">" ~ MKT_ex"</span>))</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    m   <span class="ot">&lt;-</span> <span class="fu">feols</span>(fml, <span class="at">data =</span> DT_sample, <span class="at">vcov =</span> <span class="fu">NW</span>(<span class="at">lag =</span> nw_lag), <span class="at">panel.id =</span> <span class="sc">~</span> Date <span class="sc">+</span> RF)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    ct  <span class="ot">&lt;-</span> <span class="fu">coeftable</span>(m)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check coefficient names to avoid subscript errors</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>    intercept_name <span class="ot">&lt;-</span> <span class="cf">if</span>(<span class="st">"(Intercept)"</span> <span class="sc">%in%</span> <span class="fu">rownames</span>(ct)) <span class="st">"(Intercept)"</span> <span class="cf">else</span> <span class="fu">names</span>(<span class="fu">coef</span>(m))[<span class="dv">1</span>]</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    slope_name <span class="ot">&lt;-</span> <span class="cf">if</span>(<span class="st">"MKT_ex"</span> <span class="sc">%in%</span> <span class="fu">rownames</span>(ct)) <span class="st">"MKT_ex"</span> <span class="cf">else</span> <span class="fu">names</span>(<span class="fu">coef</span>(m))[<span class="dv">2</span>]</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>      <span class="at">asset       =</span> <span class="fu">gsub</span>(<span class="st">"_ex$"</span>, <span class="st">""</span>, a),  <span class="co"># Remove _ex suffix for display</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>      <span class="at">alpha       =</span> <span class="fu">coef</span>(m)[[intercept_name]],</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>      <span class="at">t_alpha     =</span> ct[intercept_name, <span class="st">"t value"</span>],</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>      <span class="at">beta        =</span> <span class="fu">coef</span>(m)[[slope_name]],</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>      <span class="at">t_beta      =</span> ct[slope_name, <span class="st">"t value"</span>],</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>      <span class="at">mean_excess =</span> DT_sample[, <span class="fu">mean</span>(<span class="fu">get</span>(a), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)]</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Security Market Line: E[R_i^e] = beta_i * E[R_m^e]</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  Em  <span class="ot">&lt;-</span> DT_sample[, <span class="fu">mean</span>(MKT_ex, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)]</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  bmin <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">0</span>, res[, <span class="fu">min</span>(beta, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)])</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>  bmax <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fl">1.4</span>, res[, <span class="fu">max</span>(beta, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)])</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>  sml <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">beta =</span> <span class="fu">seq</span>(bmin, bmax, <span class="at">length.out =</span> <span class="dv">200</span>))</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>  sml[, mean_excess <span class="sc">:</span><span class="er">=</span> Em <span class="sc">*</span> beta]</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Plot: E[excess return] vs beta</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">data =</span> sml, <span class="fu">aes</span>(beta, mean_excess), <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">data =</span> res, <span class="fu">aes</span>(beta, mean_excess, <span class="at">color =</span> asset), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="at">data =</span> res, <span class="fu">aes</span>(beta, mean_excess, <span class="at">label =</span> asset, <span class="at">color =</span> asset),</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>              <span class="at">nudge_y =</span> <span class="fl">0.0005</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="fu">expression</span>(beta)) <span class="sc">+</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="st">"Mean excess return"</span>, <span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste0</span>(<span class="st">"Expected Return vs Beta — "</span>, label,</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"</span><span class="sc">\n</span><span class="st">Dashed:  E[R^e_i] = beta_i · E[R^e_m],  NW lag = "</span>, nw_lag)) <span class="sc">+</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(g)</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># neat table</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setcolorder</span>(res, <span class="fu">c</span>(<span class="st">"asset"</span>,<span class="st">"beta"</span>,<span class="st">"t_beta"</span>,<span class="st">"alpha"</span>,<span class="st">"t_alpha"</span>,<span class="st">"mean_excess"</span>))</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>  res[]</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- run for all samples ----</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>capm_out <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(samples), <span class="cf">function</span>(nm) {</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, nm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">strrep</span>(<span class="st">"="</span>, <span class="fu">nchar</span>(nm)<span class="sc">+</span><span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">capm_fixest_dt</span>(samples[[nm]], nm, <span class="at">nw_lag =</span> <span class="dv">12</span>)</span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(out[, <span class="fu">lapply</span>(.SD, <span class="cf">function</span>(x) <span class="cf">if</span>(<span class="fu">is.numeric</span>(x)) <span class="fu">round</span>(x, <span class="dv">4</span>) <span class="cf">else</span> x)])</span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(out)</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Full (1926–2016)
@@ -723,132 +605,132 @@ Full (1926–2016)
 3:     BL 1.0061 72.0430 -0.0002 -0.5201      0.0047
 4:     BH 0.9559 30.8439  0.0020  2.0788      0.0067</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(capm_out) <span class="ot">&lt;-</span> <span class="fu">names</span>(samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(capm_out) <span class="ot">&lt;-</span> <span class="fu">names</span>(samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></li>
 <li><p>Test the hypothesis that the market portfolio is mean–variance efficient by calculating a Gibbons–Ross–Shanken (GRS) test statistic. Interpret your results.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Gibbons-Ross-Shanken (GRS) Test for Market Efficiency</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mvtnorm)</span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to compute GRS test statistic</span></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>grs_test <span class="ot">&lt;-</span> <span class="cf">function</span>(DT_sample, <span class="at">assets =</span> <span class="fu">c</span>(<span class="st">"SL_ex"</span>, <span class="st">"SH_ex"</span>, <span class="st">"BL_ex"</span>, <span class="st">"BH_ex"</span>)) {</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Number of assets and observations</span></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">&lt;-</span> <span class="fu">length</span>(assets)</span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  T_obs <span class="ot">&lt;-</span> <span class="fu">nrow</span>(DT_sample)</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract excess returns matrix (T x N)</span></span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(DT_sample[, ..assets])</span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(DT_sample[, .(<span class="at">const =</span> <span class="dv">1</span>, MKT_ex)])</span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove any rows with missing values</span></span>
-<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>  complete_rows <span class="ot">&lt;-</span> <span class="fu">complete.cases</span>(<span class="fu">cbind</span>(Y, X))</span>
-<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> Y[complete_rows, ]</span>
-<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> X[complete_rows, ]</span>
-<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>  T_obs <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Y)</span>
-<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run system of regressions: Y = X*B + E</span></span>
-<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># where B is (2 x N) matrix of [alpha; beta] coefficients</span></span>
-<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a>  B_hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> Y</span>
-<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Residuals (T x N)</span></span>
-<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a>  E_hat <span class="ot">&lt;-</span> Y <span class="sc">-</span> X <span class="sc">%*%</span> B_hat</span>
-<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sample covariance matrix of residuals (N x N)</span></span>
-<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a>  Sigma_hat <span class="ot">&lt;-</span> (<span class="fu">t</span>(E_hat) <span class="sc">%*%</span> E_hat) <span class="sc">/</span> (T_obs <span class="sc">-</span> <span class="dv">2</span>)</span>
-<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract alphas (first row of B_hat)</span></span>
-<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a>  alpha_hat <span class="ot">&lt;-</span> B_hat[<span class="dv">1</span>, ]</span>
-<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Market excess return statistics</span></span>
-<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a>  mkt_ex <span class="ot">&lt;-</span> DT_sample[<span class="fu">complete.cases</span>(DT_sample[, .(MKT_ex)]), MKT_ex]</span>
-<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a>  mu_m <span class="ot">&lt;-</span> <span class="fu">mean</span>(mkt_ex)</span>
-<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a>  sigma2_m <span class="ot">&lt;-</span> <span class="fu">var</span>(mkt_ex)</span>
-<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># GRS test statistic</span></span>
-<span id="cb37-43"><a href="#cb37-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># GRS = (T-N-1)/N * (1 + mu_m^2/sigma2_m)^(-1) * alpha_hat' * Sigma_hat^(-1) * alpha_hat</span></span>
-<span id="cb37-44"><a href="#cb37-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-45"><a href="#cb37-45" aria-hidden="true" tabindex="-1"></a>  factor1 <span class="ot">&lt;-</span> (T_obs <span class="sc">-</span> N <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> N</span>
-<span id="cb37-46"><a href="#cb37-46" aria-hidden="true" tabindex="-1"></a>  factor2 <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> mu_m<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> sigma2_m)</span>
-<span id="cb37-47"><a href="#cb37-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-48"><a href="#cb37-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Quadratic form: alpha' * Sigma^(-1) * alpha</span></span>
-<span id="cb37-49"><a href="#cb37-49" aria-hidden="true" tabindex="-1"></a>  quad_form <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(alpha_hat) <span class="sc">%*%</span> <span class="fu">solve</span>(Sigma_hat) <span class="sc">%*%</span> alpha_hat)</span>
-<span id="cb37-50"><a href="#cb37-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-51"><a href="#cb37-51" aria-hidden="true" tabindex="-1"></a>  GRS_stat <span class="ot">&lt;-</span> factor1 <span class="sc">*</span> factor2 <span class="sc">*</span> quad_form</span>
-<span id="cb37-52"><a href="#cb37-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-53"><a href="#cb37-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Under H0: alphas = 0, GRS follows F(N, T-N-1) distribution</span></span>
-<span id="cb37-54"><a href="#cb37-54" aria-hidden="true" tabindex="-1"></a>  df1 <span class="ot">&lt;-</span> N</span>
-<span id="cb37-55"><a href="#cb37-55" aria-hidden="true" tabindex="-1"></a>  df2 <span class="ot">&lt;-</span> T_obs <span class="sc">-</span> N <span class="sc">-</span> <span class="dv">1</span></span>
-<span id="cb37-56"><a href="#cb37-56" aria-hidden="true" tabindex="-1"></a>  p_value <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(GRS_stat, df1, df2)</span>
-<span id="cb37-57"><a href="#cb37-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-58"><a href="#cb37-58" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Critical values at common significance levels</span></span>
-<span id="cb37-59"><a href="#cb37-59" aria-hidden="true" tabindex="-1"></a>  crit_01 <span class="ot">&lt;-</span> <span class="fu">qf</span>(<span class="fl">0.99</span>, df1, df2)</span>
-<span id="cb37-60"><a href="#cb37-60" aria-hidden="true" tabindex="-1"></a>  crit_05 <span class="ot">&lt;-</span> <span class="fu">qf</span>(<span class="fl">0.95</span>, df1, df2)</span>
-<span id="cb37-61"><a href="#cb37-61" aria-hidden="true" tabindex="-1"></a>  crit_10 <span class="ot">&lt;-</span> <span class="fu">qf</span>(<span class="fl">0.90</span>, df1, df2)</span>
-<span id="cb37-62"><a href="#cb37-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-63"><a href="#cb37-63" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Individual alpha t-statistics for reference</span></span>
-<span id="cb37-64"><a href="#cb37-64" aria-hidden="true" tabindex="-1"></a>  se_alpha <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">solve</span>(Sigma_hat) <span class="sc">*</span> <span class="fu">as.numeric</span>(sigma2_m <span class="sc">+</span> mu_m<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">/</span> T_obs)</span>
-<span id="cb37-65"><a href="#cb37-65" aria-hidden="true" tabindex="-1"></a>  t_alpha <span class="ot">&lt;-</span> alpha_hat <span class="sc">/</span> se_alpha</span>
-<span id="cb37-66"><a href="#cb37-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(</span>
-<span id="cb37-68"><a href="#cb37-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">GRS_statistic =</span> GRS_stat,</span>
-<span id="cb37-69"><a href="#cb37-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> p_value,</span>
-<span id="cb37-70"><a href="#cb37-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">df1 =</span> df1,</span>
-<span id="cb37-71"><a href="#cb37-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">df2 =</span> df2,</span>
-<span id="cb37-72"><a href="#cb37-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">critical_values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">1%</span><span class="st">`</span> <span class="ot">=</span> crit_01, <span class="st">`</span><span class="at">5%</span><span class="st">`</span> <span class="ot">=</span> crit_05, <span class="st">`</span><span class="at">10%</span><span class="st">`</span> <span class="ot">=</span> crit_10),</span>
-<span id="cb37-73"><a href="#cb37-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">alphas =</span> alpha_hat,</span>
-<span id="cb37-74"><a href="#cb37-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_alphas =</span> t_alpha,</span>
-<span id="cb37-75"><a href="#cb37-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">T_obs =</span> T_obs,</span>
-<span id="cb37-76"><a href="#cb37-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">N_assets =</span> N,</span>
-<span id="cb37-77"><a href="#cb37-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">market_sharpe =</span> mu_m <span class="sc">/</span> <span class="fu">sqrt</span>(sigma2_m)</span>
-<span id="cb37-78"><a href="#cb37-78" aria-hidden="true" tabindex="-1"></a>  ))</span>
-<span id="cb37-79"><a href="#cb37-79" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-80"><a href="#cb37-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-81"><a href="#cb37-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Run GRS test for all samples</span></span>
-<span id="cb37-82"><a href="#cb37-82" aria-hidden="true" tabindex="-1"></a>grs_results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(samples), <span class="cf">function</span>(nm) {</span>
-<span id="cb37-83"><a href="#cb37-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">rep</span>(<span class="st">"="</span>, <span class="dv">60</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-84"><a href="#cb37-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"GRS Test Results:"</span>, nm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-85"><a href="#cb37-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">rep</span>(<span class="st">"="</span>, <span class="dv">60</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-86"><a href="#cb37-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-87"><a href="#cb37-87" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">grs_test</span>(samples[[nm]])</span>
-<span id="cb37-88"><a href="#cb37-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-89"><a href="#cb37-89" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Print results</span></span>
-<span id="cb37-90"><a href="#cb37-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"GRS Test Statistic: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>GRS_statistic))</span>
-<span id="cb37-91"><a href="#cb37-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Degrees of freedom: (%d, %d)</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>df1, result<span class="sc">$</span>df2))</span>
-<span id="cb37-92"><a href="#cb37-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"P-value: %.6f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>p_value))</span>
-<span id="cb37-93"><a href="#cb37-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Critical Values:</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-94"><a href="#cb37-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"  1%%: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>critical_values[<span class="dv">1</span>]))</span>
-<span id="cb37-95"><a href="#cb37-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"  5%%: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>critical_values[<span class="dv">2</span>]))</span>
-<span id="cb37-96"><a href="#cb37-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">" 10%%: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>critical_values[<span class="dv">3</span>]))</span>
-<span id="cb37-97"><a href="#cb37-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-98"><a href="#cb37-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Test Interpretation:</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-99"><a href="#cb37-99" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (result<span class="sc">$</span>p_value <span class="sc">&lt;</span> <span class="fl">0.01</span>) {</span>
-<span id="cb37-100"><a href="#cb37-100" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"*** REJECT H0 at 1% level: Market portfolio is NOT mean-variance efficient</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-101"><a href="#cb37-101" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (result<span class="sc">$</span>p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>) {</span>
-<span id="cb37-102"><a href="#cb37-102" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"**  REJECT H0 at 5% level: Market portfolio is NOT mean-variance efficient</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-103"><a href="#cb37-103" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (result<span class="sc">$</span>p_value <span class="sc">&lt;</span> <span class="fl">0.10</span>) {</span>
-<span id="cb37-104"><a href="#cb37-104" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"*   REJECT H0 at 10% level: Market portfolio is NOT mean-variance efficient</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-105"><a href="#cb37-105" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb37-106"><a href="#cb37-106" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"    FAIL TO REJECT H0: Cannot reject market efficiency</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-107"><a href="#cb37-107" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb37-108"><a href="#cb37-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-109"><a href="#cb37-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Sample size: %d observations</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>T_obs))</span>
-<span id="cb37-110"><a href="#cb37-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Market Sharpe ratio: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>market_sharpe))</span>
-<span id="cb37-111"><a href="#cb37-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-112"><a href="#cb37-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Individual Alphas and t-statistics:</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb37-113"><a href="#cb37-113" aria-hidden="true" tabindex="-1"></a>  alpha_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb37-114"><a href="#cb37-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">Asset =</span> <span class="fu">c</span>(<span class="st">"SL"</span>, <span class="st">"SH"</span>, <span class="st">"BL"</span>, <span class="st">"BH"</span>),</span>
-<span id="cb37-115"><a href="#cb37-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">Alpha =</span> <span class="fu">round</span>(result<span class="sc">$</span>alphas, <span class="dv">4</span>),</span>
-<span id="cb37-116"><a href="#cb37-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_stat =</span> <span class="fu">round</span>(result<span class="sc">$</span>t_alphas, <span class="dv">4</span>),</span>
-<span id="cb37-117"><a href="#cb37-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> <span class="fu">round</span>(<span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pt</span>(<span class="fu">abs</span>(result<span class="sc">$</span>t_alphas), result<span class="sc">$</span>df2)), <span class="dv">4</span>)</span>
-<span id="cb37-118"><a href="#cb37-118" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb37-119"><a href="#cb37-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(alpha_df)</span>
-<span id="cb37-120"><a href="#cb37-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-121"><a href="#cb37-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(result)</span>
-<span id="cb37-122"><a href="#cb37-122" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Gibbons-Ross-Shanken (GRS) Test for Market Efficiency</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># =========================================================</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mvtnorm)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to compute GRS test statistic</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>grs_test <span class="ot">&lt;-</span> <span class="cf">function</span>(DT_sample, <span class="at">assets =</span> <span class="fu">c</span>(<span class="st">"SL_ex"</span>, <span class="st">"SH_ex"</span>, <span class="st">"BL_ex"</span>, <span class="st">"BH_ex"</span>)) {</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Number of assets and observations</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">&lt;-</span> <span class="fu">length</span>(assets)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  T_obs <span class="ot">&lt;-</span> <span class="fu">nrow</span>(DT_sample)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract excess returns matrix (T x N)</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(DT_sample[, ..assets])</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(DT_sample[, .(<span class="at">const =</span> <span class="dv">1</span>, MKT_ex)])</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove any rows with missing values</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  complete_rows <span class="ot">&lt;-</span> <span class="fu">complete.cases</span>(<span class="fu">cbind</span>(Y, X))</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  Y <span class="ot">&lt;-</span> Y[complete_rows, ]</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> X[complete_rows, ]</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  T_obs <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Y)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run system of regressions: Y = X*B + E</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># where B is (2 x N) matrix of [alpha; beta] coefficients</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  B_hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> Y</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Residuals (T x N)</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  E_hat <span class="ot">&lt;-</span> Y <span class="sc">-</span> X <span class="sc">%*%</span> B_hat</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sample covariance matrix of residuals (N x N)</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  Sigma_hat <span class="ot">&lt;-</span> (<span class="fu">t</span>(E_hat) <span class="sc">%*%</span> E_hat) <span class="sc">/</span> (T_obs <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract alphas (first row of B_hat)</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>  alpha_hat <span class="ot">&lt;-</span> B_hat[<span class="dv">1</span>, ]</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Market excess return statistics</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>  mkt_ex <span class="ot">&lt;-</span> DT_sample[<span class="fu">complete.cases</span>(DT_sample[, .(MKT_ex)]), MKT_ex]</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>  mu_m <span class="ot">&lt;-</span> <span class="fu">mean</span>(mkt_ex)</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  sigma2_m <span class="ot">&lt;-</span> <span class="fu">var</span>(mkt_ex)</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># GRS test statistic</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># GRS = (T-N-1)/N * (1 + mu_m^2/sigma2_m)^(-1) * alpha_hat' * Sigma_hat^(-1) * alpha_hat</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>  factor1 <span class="ot">&lt;-</span> (T_obs <span class="sc">-</span> N <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> N</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  factor2 <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> mu_m<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> sigma2_m)</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Quadratic form: alpha' * Sigma^(-1) * alpha</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>  quad_form <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">t</span>(alpha_hat) <span class="sc">%*%</span> <span class="fu">solve</span>(Sigma_hat) <span class="sc">%*%</span> alpha_hat)</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>  GRS_stat <span class="ot">&lt;-</span> factor1 <span class="sc">*</span> factor2 <span class="sc">*</span> quad_form</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Under H0: alphas = 0, GRS follows F(N, T-N-1) distribution</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>  df1 <span class="ot">&lt;-</span> N</span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>  df2 <span class="ot">&lt;-</span> T_obs <span class="sc">-</span> N <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>  p_value <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(GRS_stat, df1, df2)</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Critical values at common significance levels</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>  crit_01 <span class="ot">&lt;-</span> <span class="fu">qf</span>(<span class="fl">0.99</span>, df1, df2)</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>  crit_05 <span class="ot">&lt;-</span> <span class="fu">qf</span>(<span class="fl">0.95</span>, df1, df2)</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>  crit_10 <span class="ot">&lt;-</span> <span class="fu">qf</span>(<span class="fl">0.90</span>, df1, df2)</span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Individual alpha t-statistics for reference</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>  se_alpha <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">solve</span>(Sigma_hat) <span class="sc">*</span> <span class="fu">as.numeric</span>(sigma2_m <span class="sc">+</span> mu_m<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">/</span> T_obs)</span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>  t_alpha <span class="ot">&lt;-</span> alpha_hat <span class="sc">/</span> se_alpha</span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(</span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">GRS_statistic =</span> GRS_stat,</span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> p_value,</span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">df1 =</span> df1,</span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">df2 =</span> df2,</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">critical_values =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">1%</span><span class="st">`</span> <span class="ot">=</span> crit_01, <span class="st">`</span><span class="at">5%</span><span class="st">`</span> <span class="ot">=</span> crit_05, <span class="st">`</span><span class="at">10%</span><span class="st">`</span> <span class="ot">=</span> crit_10),</span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">alphas =</span> alpha_hat,</span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_alphas =</span> t_alpha,</span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">T_obs =</span> T_obs,</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">N_assets =</span> N,</span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">market_sharpe =</span> mu_m <span class="sc">/</span> <span class="fu">sqrt</span>(sigma2_m)</span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Run GRS test for all samples</span></span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>grs_results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(samples), <span class="cf">function</span>(nm) {</span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">rep</span>(<span class="st">"="</span>, <span class="dv">60</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"GRS Test Results:"</span>, nm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">rep</span>(<span class="st">"="</span>, <span class="dv">60</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">grs_test</span>(samples[[nm]])</span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Print results</span></span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"GRS Test Statistic: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>GRS_statistic))</span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Degrees of freedom: (%d, %d)</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>df1, result<span class="sc">$</span>df2))</span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"P-value: %.6f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>p_value))</span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Critical Values:</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"  1%%: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>critical_values[<span class="dv">1</span>]))</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"  5%%: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>critical_values[<span class="dv">2</span>]))</span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">" 10%%: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>critical_values[<span class="dv">3</span>]))</span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Test Interpretation:</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (result<span class="sc">$</span>p_value <span class="sc">&lt;</span> <span class="fl">0.01</span>) {</span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"*** REJECT H0 at 1% level: Market portfolio is NOT mean-variance efficient</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (result<span class="sc">$</span>p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>) {</span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"**  REJECT H0 at 5% level: Market portfolio is NOT mean-variance efficient</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (result<span class="sc">$</span>p_value <span class="sc">&lt;</span> <span class="fl">0.10</span>) {</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"*   REJECT H0 at 10% level: Market portfolio is NOT mean-variance efficient</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"    FAIL TO REJECT H0: Cannot reject market efficiency</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Sample size: %d observations</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>T_obs))</span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Market Sharpe ratio: %.4f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>market_sharpe))</span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Individual Alphas and t-statistics:</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>  alpha_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">Asset =</span> <span class="fu">c</span>(<span class="st">"SL"</span>, <span class="st">"SH"</span>, <span class="st">"BL"</span>, <span class="st">"BH"</span>),</span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">Alpha =</span> <span class="fu">round</span>(result<span class="sc">$</span>alphas, <span class="dv">4</span>),</span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_stat =</span> <span class="fu">round</span>(result<span class="sc">$</span>t_alphas, <span class="dv">4</span>),</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> <span class="fu">round</span>(<span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pt</span>(<span class="fu">abs</span>(result<span class="sc">$</span>t_alphas), result<span class="sc">$</span>df2)), <span class="dv">4</span>)</span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(alpha_df)</span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(result)</span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
@@ -926,18 +808,116 @@ SH_ex    SH  0.0047  0.0462  0.9631
 BL_ex    BL -0.0002 -0.0010  0.9992
 BH_ex    BH  0.0020  0.0177  0.9859</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(grs_results) <span class="ot">&lt;-</span> <span class="fu">names</span>(samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(grs_results) <span class="ot">&lt;-</span> <span class="fu">names</span>(samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></li>
 <li></li>
 <li></li>
 </ol>
 <!-- -->
 <ol start="2" type="1">
-<li>In recent years there has been concern that the publicity given to value investing and the creation of quantitative investment strategies may alter the properties of value returns. One variant of this concern is that the ex- cess return to value may disappear permanently as quantitative investors bid up the price of value stocks to efficient levels. Another variant is that the excess return to value may become less stable as capital flows in and out of value stocks in response to shifting sentiment of end in- vestors about quantitative value strategies. Some have even argued that such shifting sentiment may cause the excess return to value to display a pattern of short-term positive autocorrelation (“style momentum”) and longer-term negative autocorrelation (“style reversal”).
+<li>In recent years there has been concern that the publicity given to value investing and the creation of quantitative investment strategies may alter the properties of value returns. One variant of this concern is that the excess return to value may disappear permanently as quantitative investors bid up the price of value stocks to efficient levels. Another variant is that the excess return to value may become less stable as capital flows in and out of value stocks in response to shifting sentiment of end in- vestors about quantitative value strategies. Some have even argued that such shifting sentiment may cause the excess return to value to display a pattern of short-term positive autocorrelation (“style momentum”) and longer-term negative autocorrelation (“style reversal”).
 <ol type="i">
-<li><p>Plot a one-year moving average of the excess return to small value stocks over small growth stocks (small-high minus small-low, or “small HML”) over the period January 1964–June 2016. Compare the be- havior of the plot in two subsamples: January 1964–December 1993 and January 1994–June 2016.</p></li>
-<li><p>Calculate the mean, standard deviation, and Sharpe ratio of: • The excess return on the market portfolio over the Treasury bill; • The return on small HML; for each of the two subsamples.</p></li>
-<li><p>Aggregate the small HML return to quarterly frequency and plot its autocorrelation function out to 12 quarters (3 years) in each of the two subsamples.</p></li>
+<li><p>Plot a one-year moving average of the excess return to small value stocks over small growth stocks (small-high minus small-low, or “small HML”) over the period January 1964–June 2016. Compare the behavior of the plot in two subsamples: January 1964–December 1993 and January 1994–June 2016.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.table</span>(df)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>dt_plot <span class="ot">&lt;-</span> df[<span class="fu">between</span>(Date, <span class="fu">as.Date</span>(<span class="st">"1964-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2016-06-30"</span>)), .(Date, SL, SH, RF)] <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  .[, ret_small_hml <span class="sc">:</span><span class="er">=</span> (SH <span class="sc">-</span> SL) ] <span class="sc">%&gt;%</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  .[, mean_ex_ret <span class="sc">:</span><span class="er">=</span> <span class="fu">frollmean</span>(ret_small_hml, <span class="at">n =</span> <span class="dv">4</span>, <span class="at">align =</span> <span class="st">"right"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">*</span> <span class="dv">4</span>] <span class="sc">%&gt;%</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  .[, period <span class="sc">:</span><span class="er">=</span> <span class="fu">fcase</span>(<span class="fu">between</span>(Date, <span class="fu">as.Date</span>(<span class="st">"1964-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"1993-12-31"</span>)), <span class="st">'period_1'</span>, </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">between</span>(Date, <span class="fu">as.Date</span>(<span class="st">"1994-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2016-06-30"</span>)), <span class="st">'period_2'</span>, </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">default =</span> <span class="st">'other'</span>)] <span class="sc">%&gt;%</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  .[period <span class="sc">!=</span> <span class="st">'other'</span>]</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>dt_plot[, average <span class="sc">:</span><span class="er">=</span> <span class="fu">mean</span>(mean_ex_ret, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), by <span class="ot">=</span> period]</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>dt_plot <span class="sc">%&gt;%</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Date, <span class="at">y =</span> mean_ex_ret, <span class="at">color =</span> period)) <span class="sc">+</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> average, <span class="at">color =</span> period), <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"One-Year Moving Average of Excess Return to Small Value Stocks over Small Growth Stocks"</span>,</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="st">"Date"</span>,</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"One-Year Moving Average of Excess Return (%)"</span>,</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">color =</span> <span class="st">"Period"</span>) <span class="sc">+</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"period_1"</span> <span class="ot">=</span> <span class="st">"blue"</span>, <span class="st">"period_2"</span> <span class="ot">=</span> <span class="st">"red"</span>),</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"1964-1993"</span>, <span class="st">"1994-2016"</span>)) <span class="sc">+</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Problem_Fama-French_Porttfolios_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div></li>
+<li><p>Calculate the mean, standard deviation, and Sharpe ratio of: • The excess return on the market portfolio over the Treasury bill; • The return on small HML; for each of the two subsamples.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>      dt_plot <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  .[, .(<span class="at">mean_ex_ret =</span> <span class="fu">mean</span>(ret_small_hml, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">sd_ex_ret =</span> <span class="fu">sd</span>(ret_small_hml, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">sharpe_ratio =</span> <span class="fu">mean</span>(ret_small_hml, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sd</span>(ret_small_hml, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)), by <span class="ot">=</span> period] <span class="sc">%&gt;%</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Small HML Return Statistics by Period"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Small HML Return Statistics by Period</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">period</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean_ex_ret</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sd_ex_ret</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sharpe_ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">period_1</td>
+<td style="text-align: right;">0.0054916</td>
+<td style="text-align: right;">0.0285874</td>
+<td style="text-align: right;">0.1920979</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">period_2</td>
+<td style="text-align: right;">0.0042455</td>
+<td style="text-align: right;">0.0361778</td>
+<td style="text-align: right;">0.1173503</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</div></li>
+<li><p>Aggregate the small HML return to quarterly frequency and plot its autocorrelation function out to 12 quarters (3 years) in each of the two subsamples.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>        df <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a> .[, ret_small_hml <span class="sc">:</span><span class="er">=</span> (SH <span class="sc">-</span> SL) ] <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a> .[, quarter <span class="sc">:</span><span class="er">=</span> <span class="fu">as.yearqtr</span>(Date)] <span class="sc">%&gt;%</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a> .[, period <span class="sc">:</span><span class="er">=</span> <span class="fu">fcase</span>(<span class="fu">between</span>(quarter, <span class="fu">as.yearqtr</span>(<span class="st">"1964 Q1"</span>), <span class="fu">as.yearqtr</span>(<span class="st">"1993 Q4"</span>)), <span class="st">'period_1'</span>, </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">between</span>(quarter, <span class="fu">as.yearqtr</span>(<span class="st">"1994 Q1"</span>), <span class="fu">as.yearqtr</span>(<span class="st">"2016 Q2"</span>)), <span class="st">'period_2'</span>, </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">default =</span> <span class="st">'other'</span>)] </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">::</span><span class="fu">acf</span>(df[period <span class="sc">==</span> <span class="st">'period_1'</span>, .(ret_small_hml)], <span class="at">lag.max =</span> <span class="dv">12</span>, <span class="at">main =</span> <span class="st">"ACF of Small HML (1964-1993)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Problem_Fama-French_Porttfolios_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">::</span><span class="fu">acf</span>(df[period <span class="sc">==</span> <span class="st">'period_2'</span>, .(ret_small_hml)], <span class="at">lag.max =</span> <span class="dv">12</span>, <span class="at">main =</span> <span class="st">"ACF of Small HML (1994-2016)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Problem_Fama-French_Porttfolios_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div></li>
 <li><p>Discuss what your results suggest about the changing behavior of value returns in recent years. Do they support any of the concerns described above?</p></li>
 </ol></li>
 </ol>
